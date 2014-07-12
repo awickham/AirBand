@@ -41,7 +41,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private float vel;
     private boolean strum = true;
     private boolean mIsDrum = true;
-    private int mColor = Color.WHITE;
+    private int mColor = Color.BLACK;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -66,9 +66,15 @@ public class MyActivity extends Activity implements SensorEventListener,
             public void onLayoutInflated(WatchViewStub stub) {
                 mImageView = (ImageView) stub.findViewById(R.id.musical_note_view);
                 mFrameLayout = (FrameLayout) stub.findViewById(R.id.frame_layout);
-                mFrameLayout.setBackgroundColor(Color.RED);
+                mFrameLayout.setBackgroundColor(Color.BLACK);
             }
         });
+
+        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
+        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -114,14 +120,19 @@ public class MyActivity extends Activity implements SensorEventListener,
         return (val < 0.0f ? -1.0f : 1.0f);
     }
 
+    private int eventThrottleTimer = 0;
+    private final int THROTTLE_LIMIT = 30;
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (mFrameLayout != null) {
             if (mIsDrum) {
-                if (event.values[1] <= -20.0f) {
+                if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT;
                 }
+                eventThrottleTimer--;
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
@@ -140,11 +151,12 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 sensorQueue.add(event.values[1]);
 
-                if (Math.abs(event.values[1]) <= 5.0f && count <= 0) {
+                if (Math.abs(event.values[1]) <= 5.0f && count <= 0 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT;
                 }
-
+                eventThrottleTimer--;
                 lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(mColor);
