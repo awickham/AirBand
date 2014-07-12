@@ -40,7 +40,8 @@ public class FullscreenActivity extends Activity {
         alpha.setDuration(1200);
         final TextView title = (TextView) findViewById(R.id.title);
         title.setTypeface(mWindSweptTf);
-        title.setAnimation(alpha);
+        title.startAnimation(alpha);
+        findViewById(R.id.wind_underline).startAnimation(alpha);
 
         final LinearLayout anchorView = (LinearLayout) findViewById(R.id.anchor);
         SystemUiHider.getInstance(this, anchorView, 0).hide();

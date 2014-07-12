@@ -38,7 +38,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         addInstrumentOption(R.drawable.instrument_drum_set, R.string.drum_set, instrumentOptions,
                 R.color.yellow_transparent, new OnDrumSetClickedListener());
         addInstrumentOption(R.drawable.instrument_guitar, R.string.guitar, instrumentOptions,
-                R.color.red_transparent, new OnDrumSetClickedListener());
+                R.color.red_transparent, new OnGuitarClickedListener());
 
         return instrumentOptions;
     }
@@ -65,6 +65,19 @@ public class InstrumentsOptionsFragment extends Fragment {
             FragmentManager fragmentManager = getActivity().getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             DrumSetFragment fragment = new DrumSetFragment();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.addToBackStack(TAG_FRAGMENT);
+            fragmentTransaction.commit();
+        }
+    }
+
+    private class OnGuitarClickedListener implements View.OnClickListener {
+        private final static String TAG_FRAGMENT = "GUITAR_FRAGMENT";
+        @Override
+        public void onClick(View v) {
+            FragmentManager fragmentManager = getActivity().getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            GuitarFragment fragment = new GuitarFragment();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
             fragmentTransaction.addToBackStack(TAG_FRAGMENT);
             fragmentTransaction.commit();

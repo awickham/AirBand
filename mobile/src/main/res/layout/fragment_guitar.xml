@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center">
+
+    <View
+        android:id="@+id/red_background"
+        android:layout_width="350dp"
+        android:layout_height="350dp"
+        android:background="@drawable/red_circle"
+        android:layout_gravity="center" />
+
+    <ImageView
+        android:id="@+id/drum_set"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:src="@drawable/instrument_guitar"
+        android:alpha="0.3"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/buttonsContainer"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/guitarButtonHeight"
+            android:background="@drawable/blue_button" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/guitarButtonHeight"
+            android:background="@drawable/green_button" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/guitarButtonHeight"
+            android:background="@drawable/yellow_button" />
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/guitarButtonHeight"
+            android:background="@drawable/fushia_button" />
+    </LinearLayout>
+
+</FrameLayout>
