@@ -5,8 +5,19 @@
     <color name="wind_blue">#CCE7E8</color>
     <color name="wind_blue_transparent">#99CCE7E8</color>
     <color name="yellow">#FFFF00</color>
+    <color name="start_yellow">#99FFCC00</color>
+    <color name="end_yellow">#99CC9900</color>
     <color name="yellow_transparent">#66FFFF00</color>
     <color name="red">#FF0000</color>
     <color name="red_transparent">#66FF0000</color>
+    <color name="blue">#5C5CFF</color>
+    <color name="start_blue">#990066FF</color>
+    <color name="end_blue">#990000FF</color>
+    <color name="green">#009900</color>
+    <color name="start_green">#9933CC33</color>
+    <color name="end_green">#99009900</color>
+    <color name="fushia">#FF0066</color>
+    <color name="start_fushia">#99FF3399</color>
+    <color name="end_fushia">#99990099</color>
 
 </resources>
