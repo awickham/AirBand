@@ -27,6 +27,7 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
+import android.os.Build;
 
 public class MyActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -180,14 +181,33 @@ public class MyActivity extends Activity implements SensorEventListener,
         return (val < 0.0f ? -1.0f : 1.0f);
     }
 
-    private int eventThrottleTimer = 0;
-    private final int THROTTLE_LIMIT = 30;
+
+
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+
+        int eventThrottleTimer = 0;
+        int THROTTLE_LIMIT = 30;
+        float DRUM_THRESHOLD_1 = -20.0f;
+        float DRUM_THRESHOLD_2 = -5.0f;
+        float GUITAR_THRESHOLD_1 = 5.0f;
+        float GUITAR_THRESHOLD_2 = 5.0f;
+        float ANIMATION_SPEED = 0.05f;
+
+        if (android.os.Build.DEVICE.equals("dory")) {
+            eventThrottleTimer = 0;
+            THROTTLE_LIMIT = 30;
+            DRUM_THRESHOLD_1 = -20.0f;
+            DRUM_THRESHOLD_2 = -5.0f;
+            GUITAR_THRESHOLD_1 = 5.0f;
+            GUITAR_THRESHOLD_2 = 5.0f;
+            ANIMATION_SPEED = 0.05f;
+        }
+
         if (mFrameLayout != null) {
             if (currentInstrument == Constants.INSTRUMENT_DRUM) {
-                if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
+                if (event.values[1] <= DRUM_THRESHOLD_1 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
                     eventThrottleTimer = THROTTLE_LIMIT;
@@ -197,10 +217,10 @@ public class MyActivity extends Activity implements SensorEventListener,
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
             } else if (currentInstrument == Constants.INSTRUMENT_MARACA) {
-                if (event.values[1] <= -5.0f && eventThrottleTimer <= 0) {
+                if (event.values[1] <= DRUM_THRESHOLD_2 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
-                    eventThrottleTimer = THROTTLE_LIMIT / 2;
+                    eventThrottleTimer = THROTTLE_LIMIT;
                 }
                 eventThrottleTimer--;
                 lum -= 0.04f;
@@ -214,19 +234,19 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 boolean ok = true;
                 for (Float f : sensorQueue) {
-                    if (Math.abs(f) <= 5.0f)
+                    if (Math.abs(f) <= GUITAR_THRESHOLD_1)
                         count++;
                 }
 
                 sensorQueue.add(event.values[1]);
 
-                if (Math.abs(event.values[1]) <= 5.0f && count <= 0 && eventThrottleTimer <= 0) {
+                if (Math.abs(event.values[1]) <= GUITAR_THRESHOLD_2 && count <= 0 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
                     eventThrottleTimer = THROTTLE_LIMIT;
                 }
                 eventThrottleTimer--;
-                lum -= 0.8f;
+                lum -= ANIMATION_SPEED;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb(0,255,0));
             }
