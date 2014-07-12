@@ -19,10 +19,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".DrumSetFragment"
-            android:label="@string/title_activity_drum_set" >
-        </activity>
     </application>
 
 </manifest>
