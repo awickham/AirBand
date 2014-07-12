@@ -30,10 +30,10 @@ public final class Constants {
     public static final byte INSTRUMENT_GUITAR = 1;
     public static final byte INSTRUMENT_DRUM = 2;
 
-    public static final byte NOTE_1 = 1;
-    public static final byte NOTE_2 = 2;
-    public static final byte NOTE_3 = 3;
-    public static final byte NOTE_4 = 4;
-    public static final byte NOTE_5 = 5;
+    public static final byte NOTE_RED = 1;
+    public static final byte NOTE_GREEN = 2;
+    public static final byte NOTE_BLUE = 3;
+    public static final byte NOTE_YELLOW = 4;
+    public static final byte NOTE_ORANGE = 5;
 
 }
