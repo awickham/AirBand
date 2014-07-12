@@ -1,20 +1,26 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/anchor"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/light_orange"
+    android:orientation="vertical"
     tools:context=".FullscreenActivity">
 
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
-    <TextView android:id="@+id/fullscreen_content"
+    <TextView android:id="@+id/title"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:keepScreenOn="true"
-        android:textColor="#33b5e5"
+        android:textColor="@color/wind_blue"
         android:textStyle="bold"
-        android:textSize="50sp"
-        android:gravity="center"
-        android:text="@string/dummy_content" />
-</FrameLayout>
+        android:textSize="84sp"
+        android:gravity="center_horizontal"
+        android:text="@string/app_name" />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:src="@drawable/wind_underline"
+        android:scaleType="fitXY"
+        android:layout_marginTop="-10dp"/>
+
+</LinearLayout>

@@ -1,10 +1,12 @@
 package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.linkedin.wearapps.airband.util.SystemUiHider;
 
@@ -24,7 +26,10 @@ public class FullscreenActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_fullscreen);
 
-        final View contentView = findViewById(R.id.fullscreen_content);
-        SystemUiHider.getInstance(this, contentView, 0).hide();
+        Typeface tf = Typeface.createFromAsset(getAssets(), "Windswept MF.ttf");
+        ((TextView) findViewById(R.id.title)).setTypeface(tf);
+
+        final View anchorView = findViewById(R.id.anchor);
+        SystemUiHider.getInstance(this, anchorView, 0).hide();
     }
 }
