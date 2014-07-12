@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
@@ -157,12 +158,16 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     private void sendPlaySoundMessage() {
-        NodeApi.GetConnectedNodesResult nodes =
-                Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
-        for (Node node : nodes.getNodes()) {
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
-                    Constants.PATH_PLAY_SOUND, new byte[0]);
-        }
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
+                        for (Node node : nodes.getNodes()) {
+                            Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
+                                    Constants.PATH_PLAY_SOUND, new byte[0]);
+                        }
+                    }
+        });
     }
 
     @Override
