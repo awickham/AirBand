@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.linkedin.wearapps.airband"
-        minSdkVersion 18
+        minSdkVersion 19
         targetSdkVersion 20
         versionCode 1
         versionName "1.0"
