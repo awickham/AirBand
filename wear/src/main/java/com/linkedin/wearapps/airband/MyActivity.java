@@ -39,8 +39,6 @@ public class MyActivity  extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.i(TAG,"OHLSIEFLSIEJFLISJEFLISJFLISEJFLISEJFLISJEF !!!!!!!!! !!!!!!!!!!!!!!");
-
         setContentView(R.layout.activity_my);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -59,7 +57,6 @@ public class MyActivity  extends Activity implements SensorEventListener {
                 mFrameLayout = (FrameLayout) stub.findViewById(R.id.frame_layout);
                 mTextView = (TextView) stub.findViewById(R.id.textView);
                 mFrameLayout.setBackgroundColor(Color.RED);
-                Log.d(TAG, "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             }
         });
     }
