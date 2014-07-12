@@ -1,12 +1,14 @@
 package com.linkedin.wearapps.airband;
 
+import android.app.Activity;
 import android.os.Bundle;
-import android.support.wearable.activity.WatchActivity;
 import android.support.wearable.view.WatchViewStub;
 import android.util.Log;
 import android.widget.TextView;
 
-public class MyActivity  extends WatchActivity {
+public class MyActivity  extends Activity {
+
+    private String TAG = "MyActivity";
 
     private TextView mTextView;
 
