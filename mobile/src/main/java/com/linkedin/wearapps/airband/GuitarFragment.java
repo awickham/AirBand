@@ -116,8 +116,8 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
-        Log.i(TAG, "Received message, playing guitar.");
         if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath()) && mSoundsLoaded) {
+            Log.i(TAG, "Received message, playing guitar.");
             playSound();
         }
     }
@@ -175,20 +175,20 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
             // Should never be null, but guess the check doesn't hurt.
             mSoundPool.play(soundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
-        // Set data item to tell watch what color to use.
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_BACKGROUND);
-        putDataMapRequest.getDataMap().putInt(Constants.CURRENT_BACKGROUND, rawGuitarSoundIndex);
-        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
-                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                    @Override
-                    public void onResult(DataApi.DataItemResult dataItemResult) {
-                        if (!dataItemResult.getStatus().isSuccess()) {
-                            Log.e(TAG, "Failed to set guitar data item.");
-                        } else {
-                            Log.i(TAG, "Setting guitar data item.");
-                        }
-                    }
-                });
+//        // Set data item to tell watch what color to use.
+//        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_BACKGROUND);
+//        putDataMapRequest.getDataMap().putInt(Constants.CURRENT_BACKGROUND, rawGuitarSoundIndex);
+//        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
+//                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+//                    @Override
+//                    public void onResult(DataApi.DataItemResult dataItemResult) {
+//                        if (!dataItemResult.getStatus().isSuccess()) {
+//                            Log.e(TAG, "Failed to set guitar data item.");
+//                        } else {
+//                            Log.i(TAG, "Setting guitar data item.");
+//                        }
+//                    }
+//                });
     }
 
     @Override
