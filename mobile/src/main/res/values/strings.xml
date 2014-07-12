@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Air Band</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="choose_instrument">Choose Your Instrument</string>
+    <string name="drum_set">Drum Set</string>
 
 </resources>
