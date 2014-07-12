@@ -114,14 +114,19 @@ public class MyActivity extends Activity implements SensorEventListener,
         return (val < 0.0f ? -1.0f : 1.0f);
     }
 
+    private int eventThrottleTimer = 0;
+    private int THROTTLE_LIMIT = 10;
+
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (mFrameLayout != null) {
             if (mIsDrum) {
-                if (event.values[1] <= -20.0f) {
+                if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT;
                 }
+                eventThrottleTimer--;
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
@@ -140,11 +145,12 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 sensorQueue.add(event.values[1]);
 
-                if (Math.abs(event.values[1]) <= 5.0f && count <= 0) {
+                if (Math.abs(event.values[1]) <= 5.0f && count <= 0 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT;
                 }
-
+                eventThrottleTimer--;
                 lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(mColor);
