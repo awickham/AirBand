@@ -57,6 +57,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onStop() {
         Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+        mGoogleApiClient.disconnect();
         super.onStop();
     }
 
@@ -178,6 +179,5 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 }
