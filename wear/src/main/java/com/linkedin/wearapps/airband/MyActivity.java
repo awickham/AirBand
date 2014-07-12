@@ -129,6 +129,8 @@ public class MyActivity extends Activity implements SensorEventListener,
                 return Color.MAGENTA;
             case 7:
                 return Color.GRAY;
+            default:
+                return Color.RED;
         }
     }
 
