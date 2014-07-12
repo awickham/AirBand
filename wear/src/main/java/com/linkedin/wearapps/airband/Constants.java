@@ -24,16 +24,10 @@ public final class Constants {
     private Constants() {}
 
     public static final String PATH_PLAY_SOUND = "/play_sound";
-    public static final String CURRENT_NOTE = "current_note";
+    public static final String CURRENT_BACKGROUND = "current_background";
     public static final String CURRENT_INSTRUMENT = "current_instrument";
 
     public static final byte INSTRUMENT_GUITAR = 1;
     public static final byte INSTRUMENT_DRUM = 2;
-
-    public static final byte NOTE_RED = 1;
-    public static final byte NOTE_GREEN = 2;
-    public static final byte NOTE_BLUE = 3;
-    public static final byte NOTE_YELLOW = 4;
-    public static final byte NOTE_ORANGE = 5;
 
 }

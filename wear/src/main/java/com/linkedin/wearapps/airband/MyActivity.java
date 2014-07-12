@@ -43,6 +43,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private float vel;
     private boolean strum = true;
     private boolean mIsDrum = true;
+    private int mColor = Color.WHITE;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -61,6 +62,11 @@ public class MyActivity extends Activity implements SensorEventListener,
 
         sensorQueue = new ArrayDeque<Float>();
 
+        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
+        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
+
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
@@ -71,6 +77,7 @@ public class MyActivity extends Activity implements SensorEventListener,
                 mFrameLayout.setBackgroundColor(Color.RED);
             }
         });
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
