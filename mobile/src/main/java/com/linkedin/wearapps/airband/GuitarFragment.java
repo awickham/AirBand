@@ -68,7 +68,18 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
     @Override
     public void onStop() {
         Wearable.MessageApi.removeListener(mGoogleApiClient, this);
-        mGoogleApiClient.disconnect();
+        Wearable.DataApi.deleteDataItems(mGoogleApiClient,
+                PutDataMapRequest.create(Constants.PATH_INSTRUMENT).getUri()).setResultCallback(
+                new ResultCallback<DataApi.DeleteDataItemsResult>() {
+                    @Override
+                    public void onResult(DataApi.DeleteDataItemsResult deleteDataItemsResult) {
+                        if (!deleteDataItemsResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Failed to delete data items.");
+                        }
+                        mGoogleApiClient.disconnect();
+                    }
+                }
+        );
         super.onStop();
     }
 
@@ -130,6 +141,11 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
             MediaPlayer sound = MediaPlayer.create(getActivity(), rawGuitarSound);
             sound.setVolume(1.0f, 1.0f);
             sound.start();
+            sound.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                public void onCompletion(MediaPlayer mp) {
+                    mp.release();
+                }
+            });
         }
     }
 
