@@ -25,6 +25,8 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -92,6 +94,21 @@ public class MyActivity extends Activity implements SensorEventListener,
                         mRetrievedPairedNode = true;
                     }
                 });
+
+        new Timer().scheduleAtFixedRate(new TimerTask() {
+
+            @Override
+            public void run() {
+                // empy message YAY!!!!
+                if (mRetrievedPairedNode) {
+                    Wearable.MessageApi.sendMessage(mGoogleApiClient, mPairedNode.getId(),
+                            "", new byte[0]);
+                    Log.i(TAG, "Sent message to phone.");
+                } else {
+                    Log.w(TAG, "Failed to send play sound message because haven't found paired node");
+                }
+            }
+        }, 0, 300);
     }
 
     private int getColor(int soundIndex) {
@@ -200,7 +217,7 @@ public class MyActivity extends Activity implements SensorEventListener,
                 eventThrottleTimer--;
                 lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
-                mFrameLayout.setBackgroundColor(mColor);
+                mFrameLayout.setBackgroundColor(Color.rgb(0,255,0));
             }
         }
     }
