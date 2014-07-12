@@ -15,8 +15,11 @@ import android.view.animation.ScaleAnimation;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
 public class DrumSetFragment extends Fragment implements MessageApi.MessageListener,
@@ -158,6 +161,19 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onConnected(Bundle bundle) {
         Wearable.MessageApi.addListener(mGoogleApiClient, this);
+        // Set data item to alert watch that drum is active.
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_INSTRUMENT);
+        putDataMapRequest.getDataMap().putByte(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
+                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                        if (!dataItemResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Failed to set drum data item.");
+                        }
+                    }
+                });
     }
 
     @Override

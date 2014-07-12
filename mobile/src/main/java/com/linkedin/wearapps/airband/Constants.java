@@ -24,6 +24,8 @@ public final class Constants {
     private Constants() {}
 
     public static final String PATH_PLAY_SOUND = "/play_sound";
+    public static final String PATH_INSTRUMENT = "/instrument";
+    public static final String PATH_BACKGROUND = "/background";
     public static final String CURRENT_BACKGROUND = "current_background";
     public static final String CURRENT_INSTRUMENT = "current_instrument";
 
