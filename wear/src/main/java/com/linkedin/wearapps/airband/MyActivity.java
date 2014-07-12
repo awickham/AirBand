@@ -78,6 +78,12 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     @Override
+    public void onDestroy() {
+        mGoogleApiClient.disconnect();
+        super.onDestroy();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         if (!mResolvingError) {
