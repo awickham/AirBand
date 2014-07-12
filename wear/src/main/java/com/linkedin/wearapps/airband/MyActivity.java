@@ -41,6 +41,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private Queue<Float> sensorQueue;
     private float vel;
     private boolean strum = true;
+    private boolean mIsDrum = true;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -117,27 +118,40 @@ public class MyActivity extends Activity implements SensorEventListener,
     public void onSensorChanged(SensorEvent event) {
         if (mTextView != null) {
 
-            while (sensorQueue.size() > 5)
-                sensorQueue.remove();
-
-            int count = 0;
-
-            boolean ok = true;
-            for (Float f : sensorQueue) {
-                if (Math.abs(f) <= 5.0f)
-                    count++;
+            if (mIsDrum) {
+                if (event.values[1] <= -20.0f) {
+                    lum = 1.0f;
+                    sendPlaySoundMessage();
+                }
+                lum -= 0.04f;
+                lum = Math.max(0.0f,lum);
+                mFrameLayout.setBackgroundColor(Color.rgb((int)(lum*255), (int)(lum*255), (int)(lum*255)));
             }
+            else {
 
-            sensorQueue.add(event.values[1]);
+                while (sensorQueue.size() > 5)
+                    sensorQueue.remove();
 
-            if (Math.abs(event.values[1]) <= 5.0f && count <= 0) {
-                lum = 1.0f;
+                int count = 0;
+
+                boolean ok = true;
+                for (Float f : sensorQueue) {
+                    if (Math.abs(f) <= 5.0f)
+                        count++;
+                }
+
+                sensorQueue.add(event.values[1]);
+
+                if (Math.abs(event.values[1]) <= 5.0f && count <= 0) {
+                    lum = 1.0f;
+                    sendPlaySoundMessage();
+                }
+
+                lum -= 0.8f;
+                lum = Math.max(0.0f, lum);
+
+                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), 0, 0));
             }
-
-            lum -= 0.04f;
-            lum = Math.max(0.0f,lum);
-
-            mFrameLayout.setBackgroundColor(Color.rgb((int)(lum*255), 0, 0));
 
         }
     }
