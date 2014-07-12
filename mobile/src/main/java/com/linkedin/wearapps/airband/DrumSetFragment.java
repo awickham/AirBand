@@ -6,7 +6,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.media.MediaPlayer;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -32,10 +33,18 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         SensorEventListener {
     private static final String TAG = "DrumSetFragment";
 
-    MediaPlayer mKick;
-    MediaPlayer mSnare;
-
     private GoogleApiClient mGoogleApiClient;
+
+    // Sound stuff
+    SoundPool mSoundPool;
+    private static int mKickId;
+    private static int mSnareId;
+    private static boolean mSoundsLoaded = false;
+    private static final float VOLUME = 1.0f;
+    private static final int MAX_STREAMS = 10;
+    private static final int PRIORITY = 1;
+    private static final int NUM_LOOPS = 1;
+    private static final float RATE = 1f;
 
     // Sensor stuff
     private SensorManager mSensorManager;
@@ -47,10 +56,16 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onActivityCreated(Bundle b) {
         super.onActivityCreated(b);
-        mKick = MediaPlayer.create(getActivity(), R.raw.kick);
-        mKick.setVolume(1.0f, 1.0f);
-        mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
-        mSnare.setVolume(1.0f, 1.0f);
+        // Load the sounds
+        mSoundPool = new SoundPool(MAX_STREAMS, AudioManager.STREAM_MUSIC, 0);
+        mSoundPool.setOnLoadCompleteListener(new SoundPool.OnLoadCompleteListener() {
+            @Override
+            public void onLoadComplete(SoundPool soundPool, int sampleId, int status) {
+                mSoundsLoaded = true;
+            }
+        });
+        mKickId = mSoundPool.load(getActivity(), R.raw.kick, PRIORITY);
+        mSnareId = mSoundPool.load(getActivity(), R.raw.snare, PRIORITY);
 
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -91,13 +106,8 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.i(TAG, "Received message, playing drum.");
-        if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath())) {
-            if (mSnare.isPlaying()) {
-                mSnare.reset();
-                mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
-                mSnare.setVolume(1.0f, 1.0f);
-            }
-            mSnare.start();
+        if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath()) && mSoundsLoaded) {
+            mSoundPool.play(mSnareId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
     }
 
@@ -157,7 +167,9 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.values[1] <= SENSOR_THRESHOLD && mEventThrottleTimer <= 0) {
-            playKickSound();
+            if (mSoundsLoaded) {
+                playKickSound();
+            }
             mEventThrottleTimer = THROTTLE_LIMIT;
         }
         mEventThrottleTimer--;
@@ -165,12 +177,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
 
     private void playKickSound() {
         // Play the sound.
-        if (mKick.isPlaying()) {
-            mKick.reset();
-            mKick = MediaPlayer.create(getActivity(), R.raw.kick);
-            mKick.setVolume(1.0f, 1.0f);
-        }
-        mKick.start();
+        mSoundPool.play(mKickId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         // Show the pulse animation.
         final View pulseBackground = getActivity().findViewById(R.id.pulse);
         pulseBackground.setVisibility(View.VISIBLE);
