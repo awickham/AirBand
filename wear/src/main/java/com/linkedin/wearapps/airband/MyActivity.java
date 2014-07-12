@@ -2,6 +2,7 @@ package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -28,6 +29,7 @@ import java.util.Queue;
 public class MyActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
+
     /** Request code for launching the Intent to resolve Google Play services errors. */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
@@ -40,7 +42,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private Queue<Float> sensorQueue;
     private float vel;
     private boolean strum = true;
-    private boolean mIsDrum = true;
+    private byte currentInstrument;
     private int mColor = Color.BLACK;
 
     private GoogleApiClient mGoogleApiClient;
@@ -72,10 +74,9 @@ public class MyActivity extends Activity implements SensorEventListener,
             }
         });
 
-        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+        currentInstrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
                 Constants.INSTRUMENT_DRUM);
-        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
-        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
+        mColor = getColor(getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, 0));
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -91,6 +92,33 @@ public class MyActivity extends Activity implements SensorEventListener,
                         mRetrievedPairedNode = true;
                     }
                 });
+    }
+
+    private int getColor(int soundIndex) {
+        switch (soundIndex % 8) {
+            case 0:
+                return Color.RED;
+            case 1:
+                return Color.BLUE;
+            case 2:
+                return Color.YELLOW;
+            case 3:
+                return Color.GREEN;
+            case 4:
+                return Color.CYAN;
+            case 5:
+                return Color.LTGRAY;
+            case 6:
+                return Color.MAGENTA;
+            case 7:
+                return Color.GRAY;
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        mColor = getColor(intent.getIntExtra(Constants.CURRENT_BACKGROUND, 0));
     }
 
     @Override
@@ -137,7 +165,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (mFrameLayout != null) {
-            if (mIsDrum) {
+            if (currentInstrument == Constants.INSTRUMENT_DRUM) {
                 if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();

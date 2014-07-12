@@ -34,10 +34,14 @@ public class HomeListenerService extends WearableListenerService {
         DataMapItem mapDataItem = DataMapItem.fromDataItem(dataItem);
         DataMap data = mapDataItem.getDataMap();
 
+        byte currentInstrument = data.getByte(Constants.CURRENT_INSTRUMENT);
+        int currentBackground = data.getInt(Constants.CURRENT_BACKGROUND);
+
         Intent startActivity = new Intent(this, MyActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                .putExtra(Constants.CURRENT_INSTRUMENT, data.getByte(Constants.CURRENT_INSTRUMENT))
-                .putExtra(Constants.CURRENT_BACKGROUND, data.getInt(Constants.CURRENT_BACKGROUND));
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP
+                        | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                .putExtra(Constants.CURRENT_INSTRUMENT, currentInstrument)
+                .putExtra(Constants.CURRENT_BACKGROUND, currentBackground);
         startActivity(startActivity);
     }
 
