@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -34,7 +36,13 @@ public class FullscreenActivity extends Activity {
         setContentView(R.layout.activity_fullscreen);
 
         mWindSweptTf = Typeface.createFromAsset(getAssets(), "Windswept MF.ttf");
-        ((TextView) findViewById(R.id.title)).setTypeface(mWindSweptTf);
+        AlphaAnimation alpha = new AlphaAnimation(1.0f, 0.4f);
+        alpha.setRepeatCount(Animation.INFINITE);
+        alpha.setRepeatMode(Animation.REVERSE);
+        alpha.setDuration(1200);
+        final TextView title = (TextView) findViewById(R.id.title);
+        title.setTypeface(mWindSweptTf);
+        title.setAnimation(alpha);
         ((TextView) findViewById(R.id.choose_instrument)).setTypeface(mWindSweptTf);
 
         final LinearLayout anchorView = (LinearLayout) findViewById(R.id.anchor);
