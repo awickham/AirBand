@@ -3,7 +3,6 @@ package com.linkedin.wearapps.airband;
 import android.app.Fragment;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,33 +14,35 @@ import android.widget.LinearLayout;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class GuitarFragment extends Fragment implements MessageApi.MessageListener {
     private Set<Integer> mButtonsPressed;
-    private MediaPlayer mKick;
-    private MediaPlayer mSnare;
+    private List<Integer> mRawGuitarSounds;
 
     @Override
     public void onActivityCreated(Bundle b) {
         super.onActivityCreated(b);
-        mKick = MediaPlayer.create(getActivity(), R.raw.kick);
-        mKick.setVolume(1.0f, 1.0f);
-        mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
-        mSnare.setVolume(1.0f, 1.0f);
+        mRawGuitarSounds = new ArrayList<Integer>(16);
+        mRawGuitarSounds.add(R.raw.g_third_string);
+        mRawGuitarSounds.add(R.raw.a_third_string);
+        mRawGuitarSounds.add(R.raw.b_second_string);
+        mRawGuitarSounds.add(R.raw.c_second_string);
+        mRawGuitarSounds.add(R.raw.d_second_string);
+        mRawGuitarSounds.add(R.raw.e_first_string);
+        mRawGuitarSounds.add(R.raw.f_first_string);
+        mRawGuitarSounds.add(R.raw.g_first_string);
+
         mButtonsPressed = new HashSet<Integer>(4);
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath())) {
-            if (mSnare.isPlaying()) {
-                mSnare.reset();
-                mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
-                mSnare.setVolume(1.0f, 1.0f);
-            }
-            mSnare.start();
+            playSound();
         }
     }
 
@@ -67,12 +68,14 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                     if (MotionEvent.ACTION_DOWN == event.getAction()) {
                         v.setAlpha(1.0f);
                         mButtonsPressed.add(j);
-                        Log.d("GuitarFragment", "Buttons pressed: " + mButtonsPressed);
+                        // TODO play when message is received instead of here.
+                        playSound();
                         return true;
                     } else if (MotionEvent.ACTION_UP == event.getAction()) {
                         v.setAlpha(0.6f);
                         mButtonsPressed.remove(j);
-                        Log.d("GuitarFragment", "Buttons pressed: " + mButtonsPressed);
+                        // TODO play when message is received instead of here.
+                        playSound();
                         return true;
                     }
                     return false;
@@ -81,5 +84,22 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
         }
 
         return guitar;
+    }
+
+    private void playSound() {
+        int rawGuitarSoundIndex = 0 | (mButtonsPressed.contains(3) ? 1 : 0)
+                | (mButtonsPressed.contains(2) ? 2 : 0)
+                | (mButtonsPressed.contains(1) ? 4 : 0)
+                | (mButtonsPressed.contains(0) ? 8 : 0);
+        if (rawGuitarSoundIndex >= mRawGuitarSounds.size()) {
+            // This sound is not available. Get out of here silently!
+            return;
+        }
+        Integer rawGuitarSound = mRawGuitarSounds.get(rawGuitarSoundIndex);
+        if (rawGuitarSound != null) {
+            MediaPlayer sound = MediaPlayer.create(getActivity(), rawGuitarSound);
+            sound.setVolume(1.0f, 1.0f);
+            sound.start();
+        }
     }
 }
