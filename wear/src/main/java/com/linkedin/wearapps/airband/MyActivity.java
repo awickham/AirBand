@@ -45,6 +45,8 @@ public class MyActivity extends Activity implements SensorEventListener,
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
+    private Node mPairedNode;
+    private boolean mRetrievedPairedNode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,15 @@ public class MyActivity extends Activity implements SensorEventListener,
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
+                        mPairedNode = nodes.getNodes().get(0);
+                        mRetrievedPairedNode = true;
+                    }
+                });
     }
 
     @Override
@@ -165,17 +176,13 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     private void sendPlaySoundMessage() {
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
-                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
-                    @Override
-                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
-                        for (Node node : nodes.getNodes()) {
-                            Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
-                                    Constants.PATH_PLAY_SOUND, new byte[0]);
-                            Log.i(TAG, "Sent message to phone.");
-                        }
-                    }
-                });
+        if (mRetrievedPairedNode) {
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPairedNode.getId(),
+                    Constants.PATH_PLAY_SOUND, new byte[0]);
+            Log.i(TAG, "Sent message to phone.");
+        } else {
+            Log.w(TAG, "Failed to send play sound message because haven't found paired node");
+        }
     }
 
     @Override
