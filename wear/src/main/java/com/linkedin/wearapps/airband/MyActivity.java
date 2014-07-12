@@ -99,6 +99,7 @@ public class MyActivity extends Activity implements SensorEventListener,
 
     @Override
     protected void onResume() {
+        //
         super.onResume();
         if (mSensorManager.registerListener(this, mSensor,
                 SensorManager.SENSOR_DELAY_FASTEST)) {
