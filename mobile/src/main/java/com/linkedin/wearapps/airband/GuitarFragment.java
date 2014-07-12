@@ -1,5 +1,6 @@
 package com.linkedin.wearapps.airband;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.media.AudioManager;
 import android.media.SoundPool;
@@ -33,6 +34,8 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
 
     private Set<Integer> mButtonsPressed;
     private List<Integer> mRawGuitarSoundIds;
+    private List<Integer> mRawElectricGuitarSoundIds;
+    private static final int NUM_NOTES = 8;
 
     // SoundPool stuff
     SoundPool mSoundPool;
@@ -56,15 +59,25 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                 mSoundsLoaded = true;
             }
         });
-        mRawGuitarSoundIds = new ArrayList<Integer>(16);
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.g_third_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.a_third_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.b_second_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.c_second_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.d_second_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.e_first_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.f_first_string, PRIORITY));
-        mRawGuitarSoundIds.add(mSoundPool.load(getActivity(), R.raw.g_first_string, PRIORITY));
+        mRawGuitarSoundIds = new ArrayList<Integer>(NUM_NOTES);
+        final Activity activity = getActivity();
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.g_third_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.a_third_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.b_second_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.c_second_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.d_second_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.e_first_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.f_first_string, PRIORITY));
+        mRawGuitarSoundIds.add(mSoundPool.load(activity, R.raw.g_first_string, PRIORITY));
+        mRawElectricGuitarSoundIds = new ArrayList<Integer>(NUM_NOTES);
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_g_low, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_a, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_b, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_c, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_d, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_e, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_f, PRIORITY));
+        mRawElectricGuitarSoundIds.add(mSoundPool.load(activity, R.raw.electric_g_high, PRIORITY));
 
         mButtonsPressed = new HashSet<Integer>(4);
 
@@ -131,12 +144,10 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                     if (MotionEvent.ACTION_DOWN == event.getAction()) {
                         v.setAlpha(1.0f);
                         mButtonsPressed.add(j);
-                        playSound();
                         return true;
                     } else if (MotionEvent.ACTION_UP == event.getAction()) {
                         v.setAlpha(0.6f);
                         mButtonsPressed.remove(j);
-                        playSound();
                         return true;
                     }
                     return false;
@@ -152,13 +163,16 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                 | (mButtonsPressed.contains(2) ? 2 : 0)
                 | (mButtonsPressed.contains(1) ? 4 : 0)
                 | (mButtonsPressed.contains(0) ? 8 : 0);
-        if (rawGuitarSoundIndex >= mRawGuitarSoundIds.size()) {
-            // This sound is not available. Get out of here silently!
-            return;
+        Integer soundId;
+        if (rawGuitarSoundIndex < NUM_NOTES) {
+            soundId = mRawGuitarSoundIds.get(rawGuitarSoundIndex);
+        } else {
+            // Electric guitar enabled - RELEASE THE BEAST!
+            soundId = mRawElectricGuitarSoundIds.get(rawGuitarSoundIndex - NUM_NOTES);
         }
-        Integer rawGuitarSoundId = mRawGuitarSoundIds.get(rawGuitarSoundIndex);
-        if (rawGuitarSoundId != null) {
-            mSoundPool.play(rawGuitarSoundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
+        if (soundId != null) {
+            // Should never be null, but guess the check doesn't hurt.
+            mSoundPool.play(soundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
     }
 
