@@ -5,6 +5,7 @@
     <string name="choose_instrument">Choose Your Instrument</string>
     <string name="drum_set">Drum Set</string>
     <string name="guitar">Guitar</string>
+    <string name="maracas">Maracas</string>
     <string name="title_activity_drum_set">DrumSet</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

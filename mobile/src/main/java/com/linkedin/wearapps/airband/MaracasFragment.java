@@ -28,17 +28,16 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
-public class DrumSetFragment extends Fragment implements MessageApi.MessageListener,
+public class MaracasFragment extends Fragment implements MessageApi.MessageListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         SensorEventListener {
-    private static final String TAG = "DrumSetFragment";
+    private static final String TAG = "MaracaFragment";
 
     private GoogleApiClient mGoogleApiClient;
 
     // Sound stuff
     SoundPool mSoundPool;
-    private static int mKickId;
-    private static int mSnareId;
+    private static int mMaracaId;
     private static boolean mSoundsLoaded = false;
     private static final float VOLUME = 1.0f;
     private static final int MAX_STREAMS = 10;
@@ -50,8 +49,8 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     private SensorManager mSensorManager;
     private Sensor mSensor;
     private int mEventThrottleTimer = 0;
-    private static final float SENSOR_THRESHOLD = -10.0f;
-    private static final int THROTTLE_LIMIT = 30;
+    private static final float SENSOR_THRESHOLD = -5.0f;
+    private static final int THROTTLE_LIMIT = 15;
 
     @Override
     public void onActivityCreated(Bundle b) {
@@ -64,8 +63,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
                 mSoundsLoaded = true;
             }
         });
-        mKickId = mSoundPool.load(getActivity(), R.raw.kick, PRIORITY);
-        mSnareId = mSoundPool.load(getActivity(), R.raw.snare, PRIORITY);
+        mMaracaId = mSoundPool.load(getActivity(), R.raw.maracas, PRIORITY);
 
         mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
@@ -107,24 +105,24 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     public void onMessageReceived(MessageEvent messageEvent) {
         Log.i(TAG, "Received message, playing drum.");
         if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath()) && mSoundsLoaded) {
-            mSoundPool.play(mSnareId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
+            mSoundPool.play(mMaracaId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View drumSet = inflater.inflate(R.layout.fragment_drum_set, container, false);
+        View maracas = inflater.inflate(R.layout.fragment_maracas, container, false);
 
-        // Pulsing yellow circle behind drum set.
-        View yellowBackground = drumSet.findViewById(R.id.yellow_background);
+        // Pulsing green circle behind maraca.
+        View greenBackground = maracas.findViewById(R.id.green_background);
         AlphaAnimation alpha = new AlphaAnimation(0.5f, 0.2f);
         alpha.setRepeatCount(Animation.INFINITE);
         alpha.setRepeatMode(Animation.REVERSE);
         alpha.setDuration(1200);
-        yellowBackground.startAnimation(alpha);
+        greenBackground.startAnimation(alpha);
 
-        return drumSet;
+        return maracas;
     }
 
     @Override
@@ -138,7 +136,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         // Set data item to alert watch that drum is active.
         PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_INSTRUMENT);
         putDataMapRequest.getDataMap().putByte(Constants.CURRENT_INSTRUMENT,
-                Constants.INSTRUMENT_DRUM);
+                Constants.INSTRUMENT_MARACA);
         Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
                 .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
                     @Override
@@ -174,22 +172,22 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     public void onSensorChanged(SensorEvent event) {
         if (event.values[1] <= SENSOR_THRESHOLD && mEventThrottleTimer <= 0) {
             if (mSoundsLoaded) {
-                playKickSound();
+                playSound();
             }
             mEventThrottleTimer = THROTTLE_LIMIT;
         }
         mEventThrottleTimer--;
     }
 
-    private void playKickSound() {
+    private void playSound() {
         // Play the sound.
-        mSoundPool.play(mKickId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
+        mSoundPool.play(mMaracaId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         // Show the pulse animation.
         final View pulseBackground = getActivity().findViewById(R.id.pulse);
         pulseBackground.setVisibility(View.VISIBLE);
         pulseBackground.startAnimation(getPulseBackgroundAnimation(pulseBackground));
 
-        getActivity().findViewById(R.id.drum_set).startAnimation(getShakeDrumSetAnimation());
+        getActivity().findViewById(R.id.drum_set).startAnimation(getShakeMaracaAnimation());
     }
 
     private AnimationSet getPulseBackgroundAnimation(final View pulseBackground) {
@@ -219,7 +217,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         return pulse;
     }
 
-    private AnimationSet getShakeDrumSetAnimation() {
+    private AnimationSet getShakeMaracaAnimation() {
         AnimationSet shake = new AnimationSet(false);
         RotateAnimation rotate1 = new RotateAnimation(15, 15, RotateAnimation.RELATIVE_TO_SELF,
                 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);

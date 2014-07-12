@@ -39,6 +39,8 @@ public class InstrumentsOptionsFragment extends Fragment {
                 R.color.yellow_transparent, new OnDrumSetClickedListener());
         addInstrumentOption(R.drawable.instrument_guitar, R.string.guitar, instrumentOptions,
                 R.color.red_transparent, new OnGuitarClickedListener());
+        addInstrumentOption(R.drawable.instrument_maracas, R.string.maracas, instrumentOptions,
+                R.color.blue_transparent, new OnMaracasClickedListener());
 
         return instrumentOptions;
     }
@@ -59,27 +61,37 @@ public class InstrumentsOptionsFragment extends Fragment {
     }
 
     private class OnDrumSetClickedListener implements View.OnClickListener {
-        private final static String TAG_FRAGMENT = "DRUM_SET_FRAGMENT";
         @Override
         public void onClick(View v) {
             FragmentManager fragmentManager = getActivity().getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             DrumSetFragment fragment = new DrumSetFragment();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.addToBackStack(TAG_FRAGMENT);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
     }
 
     private class OnGuitarClickedListener implements View.OnClickListener {
-        private final static String TAG_FRAGMENT = "GUITAR_FRAGMENT";
         @Override
         public void onClick(View v) {
             FragmentManager fragmentManager = getActivity().getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             GuitarFragment fragment = new GuitarFragment();
             fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.addToBackStack(TAG_FRAGMENT);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
+    }
+
+    private class OnMaracasClickedListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            FragmentManager fragmentManager = getActivity().getFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            MaracasFragment fragment = new MaracasFragment();
+            fragmentTransaction.replace(R.id.fragment_container, fragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
     }

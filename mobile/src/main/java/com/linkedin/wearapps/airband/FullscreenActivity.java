@@ -50,6 +50,16 @@ public class FullscreenActivity extends Activity {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         InstrumentsOptionsFragment fragment = new InstrumentsOptionsFragment();
         fragmentTransaction.add(R.id.fragment_container, fragment);
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getFragmentManager().getBackStackEntryCount() == 0) {
+            this.finish();
+        } else {
+            getFragmentManager().popBackStack();
+        }
     }
 }

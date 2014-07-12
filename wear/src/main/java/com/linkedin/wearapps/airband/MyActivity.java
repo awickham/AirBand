@@ -194,8 +194,17 @@ public class MyActivity extends Activity implements SensorEventListener,
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else {
-
+            } else if (currentInstrument == Constants.INSTRUMENT_MARACA) {
+                if (event.values[1] <= -5.0f && eventThrottleTimer <= 0) {
+                    lum = 1.0f;
+                    sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT / 2;
+                }
+                eventThrottleTimer--;
+                lum -= 0.04f;
+                lum = Math.max(0.0f, lum);
+                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
+            } else if (currentInstrument == Constants.INSTRUMENT_GUITAR) {
                 while (sensorQueue.size() > 5)
                     sensorQueue.remove();
 

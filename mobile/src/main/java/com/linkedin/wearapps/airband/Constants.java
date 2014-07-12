@@ -31,5 +31,6 @@ public final class Constants {
 
     public static final byte INSTRUMENT_GUITAR = 1;
     public static final byte INSTRUMENT_DRUM = 2;
+    public static final byte INSTRUMENT_MARACA = 3;
 
 }
