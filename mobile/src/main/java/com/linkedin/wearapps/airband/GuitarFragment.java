@@ -159,7 +159,8 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
     }
 
     private void playSound() {
-        int rawGuitarSoundIndex = (mButtonsPressed.contains(3) ? 1 : 0)
+        int rawGuitarSoundIndex =
+                  (mButtonsPressed.contains(3) ? 1 : 0)
                 | (mButtonsPressed.contains(2) ? 2 : 0)
                 | (mButtonsPressed.contains(1) ? 4 : 0)
                 | (mButtonsPressed.contains(0) ? 8 : 0);
@@ -174,6 +175,20 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
             // Should never be null, but guess the check doesn't hurt.
             mSoundPool.play(soundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
+        // Set data item to tell watch what color to use.
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_BACKGROUND);
+        putDataMapRequest.getDataMap().putInt(Constants.CURRENT_BACKGROUND, rawGuitarSoundIndex);
+        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
+                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                        if (!dataItemResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Failed to set guitar data item.");
+                        } else {
+                            Log.i(TAG, "Setting guitar data item.");
+                        }
+                    }
+                });
     }
 
     @Override
