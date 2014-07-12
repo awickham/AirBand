@@ -1,6 +1,11 @@
 package com.linkedin.wearapps.airband;
 
 import android.app.Fragment;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.util.Log;
@@ -23,13 +28,21 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 
 public class DrumSetFragment extends Fragment implements MessageApi.MessageListener,
-        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
+        SensorEventListener {
     private static final String TAG = "DrumSetFragment";
 
     MediaPlayer mKick;
     MediaPlayer mSnare;
 
     private GoogleApiClient mGoogleApiClient;
+
+    // Sensor stuff
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
+    private int mEventThrottleTimer = 0;
+    private static final float SENSOR_THRESHOLD = -10.0f;
+    private static final int THROTTLE_LIMIT = 30;
 
     @Override
     public void onActivityCreated(Bundle b) {
@@ -38,6 +51,9 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         mKick.setVolume(1.0f, 1.0f);
         mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
         mSnare.setVolume(1.0f, 1.0f);
+
+        mSensorManager = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
 
         mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
                 .addApi(Wearable.API)
@@ -78,25 +94,6 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View drumSet = inflater.inflate(R.layout.fragment_drum_set, container, false);
-        drumSet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO: do this when phone shakes instead of on click.
-                // Play the sound.
-                if (mKick.isPlaying()) {
-                    mKick.reset();
-                    mKick = MediaPlayer.create(getActivity(), R.raw.kick);
-                    mKick.setVolume(1.0f, 1.0f);
-                }
-                mKick.start();
-                // Show the pulse animation.
-                final View pulseBackground = v.findViewById(R.id.pulse);
-                pulseBackground.setVisibility(View.VISIBLE);
-                pulseBackground.startAnimation(getPulseBackgroundAnimation(pulseBackground));
-
-                v.findViewById(R.id.drum_set).startAnimation(getShakeDrumSetAnimation());
-            }
-        });
 
         // Pulsing yellow circle behind drum set.
         View yellowBackground = drumSet.findViewById(R.id.yellow_background);
@@ -107,6 +104,68 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         yellowBackground.startAnimation(alpha);
 
         return drumSet;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.e(TAG, "Failed to connect to Google Play Services");
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Wearable.MessageApi.addListener(mGoogleApiClient, this);
+        // Set data item to alert watch that drum is active.
+        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_INSTRUMENT);
+        putDataMapRequest.getDataMap().putByte(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
+                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                    @Override
+                    public void onResult(DataApi.DataItemResult dataItemResult) {
+                        if (!dataItemResult.getStatus().isSuccess()) {
+                            Log.e(TAG, "Failed to set drum data item.");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mSensorManager.registerListener(this, mSensor, SensorManager.SENSOR_DELAY_FASTEST)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Successfully registered for the sensor updates");
+            }
+        }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.values[1] <= SENSOR_THRESHOLD && mEventThrottleTimer <= 0) {
+            playKickSound();
+            mEventThrottleTimer = THROTTLE_LIMIT;
+        }
+        mEventThrottleTimer--;
+    }
+
+    private void playKickSound() {
+        // Play the sound.
+        if (mKick.isPlaying()) {
+            mKick.reset();
+            mKick = MediaPlayer.create(getActivity(), R.raw.kick);
+            mKick.setVolume(1.0f, 1.0f);
+        }
+        mKick.start();
+        // Show the pulse animation.
+        final View pulseBackground = getActivity().findViewById(R.id.pulse);
+        pulseBackground.setVisibility(View.VISIBLE);
+        pulseBackground.startAnimation(getPulseBackgroundAnimation(pulseBackground));
+
+        getActivity().findViewById(R.id.drum_set).startAnimation(getShakeDrumSetAnimation());
     }
 
     private AnimationSet getPulseBackgroundAnimation(final View pulseBackground) {
@@ -155,29 +214,6 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult result) {
-        Log.e(TAG, "Failed to connect to Google Play Services");
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        Wearable.MessageApi.addListener(mGoogleApiClient, this);
-        // Set data item to alert watch that drum is active.
-        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_INSTRUMENT);
-        putDataMapRequest.getDataMap().putByte(Constants.CURRENT_INSTRUMENT,
-                Constants.INSTRUMENT_DRUM);
-        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
-                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-                    @Override
-                    public void onResult(DataApi.DataItemResult dataItemResult) {
-                        if (!dataItemResult.getStatus().isSuccess()) {
-                            Log.e(TAG, "Failed to set drum data item.");
-                        }
-                    }
-                });
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 }
