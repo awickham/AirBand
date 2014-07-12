@@ -38,11 +38,11 @@ public class MyActivity extends Activity implements SensorEventListener,
     private FrameLayout mFrameLayout;
     private SensorManager mSensorManager;
     private Sensor mSensor;
-    private TextView mTextView;
     private Queue<Float> sensorQueue;
     private float vel;
     private boolean strum = true;
     private boolean mIsDrum = true;
+    private int mColor = 0;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -67,7 +67,6 @@ public class MyActivity extends Activity implements SensorEventListener,
             public void onLayoutInflated(WatchViewStub stub) {
                 mImageView = (ImageView) stub.findViewById(R.id.musical_note_view);
                 mFrameLayout = (FrameLayout) stub.findViewById(R.id.frame_layout);
-                mTextView = (TextView) stub.findViewById(R.id.textView);
                 mFrameLayout.setBackgroundColor(Color.RED);
             }
         });
@@ -117,18 +116,16 @@ public class MyActivity extends Activity implements SensorEventListener,
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (mTextView != null) {
-
+        if (mFrameLayout != null) {
             if (mIsDrum) {
                 if (event.values[1] <= -20.0f) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
                 }
                 lum -= 0.04f;
-                lum = Math.max(0.0f,lum);
-                mFrameLayout.setBackgroundColor(Color.rgb((int)(lum*255), (int)(lum*255), (int)(lum*255)));
-            }
-            else {
+                lum = Math.max(0.0f, lum);
+                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
+            } else {
 
                 while (sensorQueue.size() > 5)
                     sensorQueue.remove();
@@ -150,10 +147,25 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
+                switch (mColor) {
+                    case Constants.NOTE_RED:
+                        mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), 0, 0));
+                        break;
+                    case Constants.NOTE_GREEN:
+                        mFrameLayout.setBackgroundColor(Color.rgb(0, (int) (lum * 255), 0));
+                        break;
+                    case Constants.NOTE_BLUE:
+                        mFrameLayout.setBackgroundColor(Color.rgb(0, 0, (int) (lum * 255)));
+                        break;
+                    case Constants.NOTE_ORANGE:
+                        mFrameLayout.setBackgroundColor(Color.rgb( (int) (lum * 255),  (int) (lum * 128), 0));
+                        break;
+                    case Constants.NOTE_YELLOW:
+                        mFrameLayout.setBackgroundColor(Color.rgb( (int) (lum * 255),  (int) (lum * 255), 0));
+                        break;
 
-                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), 0, 0));
+                }
             }
-
         }
     }
 
