@@ -112,25 +112,27 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     private int getColor(int soundIndex) {
-        switch (soundIndex % 8) {
+        switch (soundIndex) {
             case 0:
-                return Color.RED;
+                return Color.GRAY;
             case 1:
-                return Color.BLUE;
+                return Color.RED;
             case 2:
                 return Color.YELLOW;
             case 3:
-                return Color.GREEN;
+                return Color.MAGENTA;
             case 4:
-                return Color.CYAN;
+                return Color.GREEN;
             case 5:
                 return Color.LTGRAY;
             case 6:
-                return Color.MAGENTA;
+                return Color.CYAN;
             case 7:
-                return Color.GRAY;
+                return Color.DKGRAY;
+            case 8:
+                return Color.BLUE;
             default:
-                return Color.RED;
+                return Color.GRAY;
         }
     }
 
