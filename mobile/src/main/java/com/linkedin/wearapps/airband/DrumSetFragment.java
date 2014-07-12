@@ -31,6 +31,11 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
         if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath())) {
+            if (mSnare.isPlaying()) {
+                mSnare.reset();
+                mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
+                mSnare.setVolume(1.0f, 1.0f);
+            }
             mSnare.start();
         }
     }
@@ -44,6 +49,11 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
             public void onClick(View v) {
                 // TODO: do this when phone shakes instead of on click.
                 // Play the sound.
+                if (mKick.isPlaying()) {
+                    mKick.reset();
+                    mKick = MediaPlayer.create(getActivity(), R.raw.kick);
+                    mKick.setVolume(1.0f, 1.0f);
+                }
                 mKick.start();
                 // Show the pulse animation.
                 final View pulseBackground = v.findViewById(R.id.pulse);
