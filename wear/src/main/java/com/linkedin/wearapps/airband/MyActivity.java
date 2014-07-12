@@ -41,7 +41,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private float vel;
     private boolean strum = true;
     private boolean mIsDrum = true;
-    private int mColor = Color.WHITE;
+    private int mColor = Color.BLACK;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -66,9 +66,15 @@ public class MyActivity extends Activity implements SensorEventListener,
             public void onLayoutInflated(WatchViewStub stub) {
                 mImageView = (ImageView) stub.findViewById(R.id.musical_note_view);
                 mFrameLayout = (FrameLayout) stub.findViewById(R.id.frame_layout);
-                mFrameLayout.setBackgroundColor(Color.RED);
+                mFrameLayout.setBackgroundColor(Color.BLACK);
             }
         });
+
+        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
+        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
+
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -115,7 +121,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     private int eventThrottleTimer = 0;
-    private int THROTTLE_LIMIT = 10;
+    private final int THROTTLE_LIMIT = 30;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
