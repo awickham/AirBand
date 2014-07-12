@@ -49,8 +49,10 @@ public class FullscreenActivity extends Activity {
         SystemUiHider.getInstance(this, anchorView, 0).hide();
 
         LinearLayout instrumentOptions = (LinearLayout) findViewById(R.id.instrument_options);
-        addInstrumentOption(R.drawable.drum_set2, R.string.drum_set, instrumentOptions,
+        addInstrumentOption(R.drawable.instrument_drum_set, R.string.drum_set, instrumentOptions,
                 R.color.yellow_transparent);
+        addInstrumentOption(R.drawable.instrument_guitar, R.string.guitar, instrumentOptions,
+                R.color.red_transparent);
     }
 
     private void addInstrumentOption(int iconRes, int nameRes, ViewGroup instrumentOptionsGroup,
