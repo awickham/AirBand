@@ -102,7 +102,7 @@ public class MyActivity  extends Activity implements SensorEventListener {
                 lum = 1.0f;
             }
 
-            lum -= 0.05f;
+            lum -= 0.04f;
             lum = Math.max(0.0f,lum);
 
             mFrameLayout.setBackgroundColor(Color.rgb((int)(lum*255), 0, 0));
