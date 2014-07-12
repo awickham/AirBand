@@ -112,27 +112,25 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     private int getColor(int soundIndex) {
-        switch (soundIndex) {
+        switch (soundIndex % 8) {
             case 0:
-                return Color.GRAY;
-            case 1:
                 return Color.RED;
+            case 1:
+                return Color.BLUE;
             case 2:
                 return Color.YELLOW;
             case 3:
-                return Color.MAGENTA;
-            case 4:
                 return Color.GREEN;
+            case 4:
+                return Color.CYAN;
             case 5:
                 return Color.LTGRAY;
             case 6:
-                return Color.CYAN;
+                return Color.MAGENTA;
             case 7:
-                return Color.DKGRAY;
-            case 8:
-                return Color.BLUE;
-            default:
                 return Color.GRAY;
+            default:
+                return Color.RED;
         }
     }
 
@@ -196,17 +194,8 @@ public class MyActivity extends Activity implements SensorEventListener,
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else if (currentInstrument == Constants.INSTRUMENT_MARACA) {
-                if (event.values[1] <= -5.0f && eventThrottleTimer <= 0) {
-                    lum = 1.0f;
-                    sendPlaySoundMessage();
-                    eventThrottleTimer = THROTTLE_LIMIT / 2;
-                }
-                eventThrottleTimer--;
-                lum -= 0.04f;
-                lum = Math.max(0.0f, lum);
-                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else if (currentInstrument == Constants.INSTRUMENT_GUITAR) {
+            } else {
+
                 while (sensorQueue.size() > 5)
                     sensorQueue.remove();
 
