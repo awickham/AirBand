@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 public class MyActivity  extends Activity implements GoogleApiClient.ConnectionCallbacks,
@@ -66,10 +68,6 @@ public class MyActivity  extends Activity implements GoogleApiClient.ConnectionC
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-    }
-
-    @Override
     public void onConnectionFailed(ConnectionResult result) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Log.d(TAG, "Disconnected from Google Api Service");
@@ -88,5 +86,18 @@ public class MyActivity  extends Activity implements GoogleApiClient.ConnectionC
         } else {
             mResolvingError = false;
         }
+    }
+
+    private void sendPlaySoundMessage() {
+        NodeApi.GetConnectedNodesResult nodes =
+                Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).await();
+        for (Node node : nodes.getNodes()) {
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
+                    Constants.PATH_PLAY_SOUND, new byte[0]);
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
     }
 }
