@@ -43,15 +43,15 @@ public class HomeListenerService extends WearableListenerService {
         }
 
         switch (data.getByte(Constants.CURRENT_NOTE)) {
-            case Constants.NOTE_1:
+            case Constants.NOTE_RED:
                 break;
-            case Constants.NOTE_2:
+            case Constants.NOTE_GREEN:
                 break;
-            case Constants.NOTE_3:
+            case Constants.NOTE_BLUE:
                 break;
-            case Constants.NOTE_4:
+            case Constants.NOTE_YELLOW:
                 break;
-            case Constants.NOTE_5:
+            case Constants.NOTE_ORANGE:
                 break;
             default:
                 break;
