@@ -3,6 +3,7 @@ package com.linkedin.wearapps.airband;
 import android.app.Fragment;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,20 @@ import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
+import com.google.android.gms.wearable.Wearable;
 
-public class DrumSetFragment extends Fragment implements MessageApi.MessageListener {
+public class DrumSetFragment extends Fragment implements MessageApi.MessageListener,
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+    private static final String TAG = "DrumSetFragment";
+
     MediaPlayer mKick;
     MediaPlayer mSnare;
+
+    private GoogleApiClient mGoogleApiClient;
 
     @Override
     public void onActivityCreated(Bundle b) {
@@ -26,10 +35,31 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         mKick.setVolume(1.0f, 1.0f);
         mSnare = MediaPlayer.create(getActivity(), R.raw.snare);
         mSnare.setVolume(1.0f, 1.0f);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity().getApplicationContext())
+                .addApi(Wearable.API)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (!mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.connect();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        Wearable.MessageApi.removeListener(mGoogleApiClient, this);
+        super.onStop();
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent) {
+        Log.i(TAG, "Received message, playing drum.");
         if (Constants.PATH_PLAY_SOUND.equals(messageEvent.getPath())) {
             if (mSnare.isPlaying()) {
                 mSnare.reset();
@@ -118,5 +148,20 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         shake.addAnimation(rotate3);
         shake.setFillAfter(true);
         return shake;
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+        Log.e(TAG, "Failed to connect to Google Play Services");
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        Wearable.MessageApi.addListener(mGoogleApiClient, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
     }
 }

@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -42,7 +41,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     private float vel;
     private boolean strum = true;
     private boolean mIsDrum = true;
-    private int mColor = 0;
+    private int mColor = Color.WHITE;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
@@ -148,24 +147,7 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
-                switch (mColor) {
-                    case Constants.NOTE_RED:
-                        mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), 0, 0));
-                        break;
-                    case Constants.NOTE_GREEN:
-                        mFrameLayout.setBackgroundColor(Color.rgb(0, (int) (lum * 255), 0));
-                        break;
-                    case Constants.NOTE_BLUE:
-                        mFrameLayout.setBackgroundColor(Color.rgb(0, 0, (int) (lum * 255)));
-                        break;
-                    case Constants.NOTE_ORANGE:
-                        mFrameLayout.setBackgroundColor(Color.rgb( (int) (lum * 255),  (int) (lum * 128), 0));
-                        break;
-                    case Constants.NOTE_YELLOW:
-                        mFrameLayout.setBackgroundColor(Color.rgb( (int) (lum * 255),  (int) (lum * 255), 0));
-                        break;
-
-                }
+                mFrameLayout.setBackgroundColor(mColor);
             }
         }
     }
@@ -178,9 +160,10 @@ public class MyActivity extends Activity implements SensorEventListener,
                         for (Node node : nodes.getNodes()) {
                             Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
                                     Constants.PATH_PLAY_SOUND, new byte[0]);
+                            Log.i(TAG, "Sent message to phone.");
                         }
                     }
-        });
+                });
     }
 
     @Override

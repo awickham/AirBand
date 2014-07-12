@@ -1,5 +1,6 @@
 package com.linkedin.wearapps.airband;
 
+import android.content.Intent;
 import android.util.Log;
 
 import com.google.android.gms.wearable.DataEvent;
@@ -23,39 +24,21 @@ public class HomeListenerService extends WearableListenerService {
         }
         for (DataEvent event : dataEvents) {
             if (event.getType() == DataEvent.TYPE_CHANGED) {
-                UpdateNoteOrInstrumentFromDataItem(event.getDataItem());
+                UpdateBackgroundOrInstrumentFromDataItem(event.getDataItem());
             }
         }
         dataEvents.close();
     }
 
-    private void UpdateNoteOrInstrumentFromDataItem(DataItem dataItem) {
+    private void UpdateBackgroundOrInstrumentFromDataItem(DataItem dataItem) {
         DataMapItem mapDataItem = DataMapItem.fromDataItem(dataItem);
         DataMap data = mapDataItem.getDataMap();
 
-        switch (data.getByte(Constants.CURRENT_INSTRUMENT)) {
-            case Constants.INSTRUMENT_GUITAR:
-                break;
-            case Constants.INSTRUMENT_DRUM:
-                break;
-            default:
-                break;
-        }
-
-        switch (data.getByte(Constants.CURRENT_NOTE)) {
-            case Constants.NOTE_RED:
-                break;
-            case Constants.NOTE_GREEN:
-                break;
-            case Constants.NOTE_BLUE:
-                break;
-            case Constants.NOTE_YELLOW:
-                break;
-            case Constants.NOTE_ORANGE:
-                break;
-            default:
-                break;
-        }
+        Intent startActivity = new Intent(this, MyActivity.class)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(Constants.CURRENT_INSTRUMENT, data.getByte(Constants.CURRENT_INSTRUMENT))
+                .putExtra(Constants.CURRENT_BACKGROUND, data.getInt(Constants.CURRENT_BACKGROUND));
+        startActivity(startActivity);
     }
 
 }
