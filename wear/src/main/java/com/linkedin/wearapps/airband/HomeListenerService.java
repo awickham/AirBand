@@ -35,7 +35,7 @@ public class HomeListenerService extends WearableListenerService {
         DataMap data = mapDataItem.getDataMap();
 
         Intent startActivity = new Intent(this, MyActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
                 .putExtra(Constants.CURRENT_INSTRUMENT, data.getByte(Constants.CURRENT_INSTRUMENT))
                 .putExtra(Constants.CURRENT_BACKGROUND, data.getInt(Constants.CURRENT_BACKGROUND));
         startActivity(startActivity);
