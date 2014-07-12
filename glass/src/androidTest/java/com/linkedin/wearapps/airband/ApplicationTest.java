@@ -1,4 +1,4 @@
-package com.example.andy.myapplication;
+package com.linkedin.wearapps.airband;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
