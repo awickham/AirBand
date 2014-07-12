@@ -160,6 +160,7 @@ public class MyActivity extends Activity implements SensorEventListener,
                         for (Node node : nodes.getNodes()) {
                             Wearable.MessageApi.sendMessage(mGoogleApiClient, node.getId(),
                                     Constants.PATH_PLAY_SOUND, new byte[0]);
+                            Log.i(TAG, "Sent message to phone.");
                         }
                     }
                 });
