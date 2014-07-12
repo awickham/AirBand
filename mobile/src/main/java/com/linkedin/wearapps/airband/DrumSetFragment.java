@@ -16,7 +16,6 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 
 public class DrumSetFragment extends Fragment implements MessageApi.MessageListener {
-
     MediaPlayer mKick;
     MediaPlayer mSnare;
 
