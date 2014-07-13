@@ -16,16 +16,9 @@ import android.widget.TextView;
 
 
 /**
- * A simple {@link Fragment} subclass.
- *
+ * A fragment that lists instruments, which each have their own fragment to replace this one.
  */
 public class InstrumentsOptionsFragment extends Fragment {
-
-
-    public InstrumentsOptionsFragment() {
-        // Required empty public constructor
-    }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,36 +56,35 @@ public class InstrumentsOptionsFragment extends Fragment {
     private class OnDrumSetClickedListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            FragmentManager fragmentManager = getActivity().getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            DrumSetFragment fragment = new DrumSetFragment();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            replaceFragment(new DrumSetFragment());
         }
     }
 
     private class OnGuitarClickedListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            FragmentManager fragmentManager = getActivity().getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            GuitarFragment fragment = new GuitarFragment();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            replaceFragment(new GuitarFragment());
         }
     }
 
     private class OnMaracasClickedListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
-            FragmentManager fragmentManager = getActivity().getFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            MaracasFragment fragment = new MaracasFragment();
-            fragmentTransaction.replace(R.id.fragment_container, fragment);
-            fragmentTransaction.addToBackStack(null);
-            fragmentTransaction.commit();
+            replaceFragment(new MaracasFragment());
         }
+    }
+
+    /**
+     * Replace this InstrumentsOptionsFragment with another fragment (one of the instruments).
+     */
+    private void replaceFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getActivity().getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.fragment_animation_fade_in,
+                R.anim.fragment_animation_fade_out, R.anim.fragment_animation_fade_in,
+                R.anim.fragment_animation_fade_out);
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.addToBackStack(null);
+        fragmentTransaction.commit();
     }
 }
