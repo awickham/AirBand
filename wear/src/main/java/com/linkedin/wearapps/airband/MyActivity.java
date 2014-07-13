@@ -2,7 +2,6 @@ package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -29,7 +28,6 @@ import java.util.Queue;
 public class MyActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-
     /** Request code for launching the Intent to resolve Google Play services errors. */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
@@ -42,12 +40,12 @@ public class MyActivity extends Activity implements SensorEventListener,
     private Queue<Float> sensorQueue;
     private float vel;
     private boolean strum = true;
-    private byte currentInstrument;
+    private boolean mIsDrum = true;
     private int mColor = Color.BLACK;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
-    private static Node mPairedNode;
+    private Node mPairedNode;
     private boolean mRetrievedPairedNode = false;
 
     @Override
@@ -74,9 +72,10 @@ public class MyActivity extends Activity implements SensorEventListener,
             }
         });
 
-        currentInstrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
                 Constants.INSTRUMENT_DRUM);
-        mColor = getColor(getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, 0));
+        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
+        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
@@ -91,39 +90,7 @@ public class MyActivity extends Activity implements SensorEventListener,
                         mPairedNode = nodes.getNodes().get(0);
                         mRetrievedPairedNode = true;
                     }
-                }
-        );
-    }
-
-    private int getColor(int soundIndex) {
-        switch (soundIndex) {
-            case 0:
-                return Color.GRAY;
-            case 1:
-                return Color.RED;
-            case 2:
-                return Color.YELLOW;
-            case 3:
-                return Color.MAGENTA;
-            case 4:
-                return Color.GREEN;
-            case 5:
-                return Color.LTGRAY;
-            case 6:
-                return Color.CYAN;
-            case 7:
-                return Color.DKGRAY;
-            case 8:
-                return Color.BLUE;
-            default:
-                return Color.GRAY;
-        }
-    }
-
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        mColor = getColor(intent.getIntExtra(Constants.CURRENT_BACKGROUND, 0));
+                });
     }
 
     @Override
@@ -164,33 +131,14 @@ public class MyActivity extends Activity implements SensorEventListener,
         return (val < 0.0f ? -1.0f : 1.0f);
     }
 
-
-
+    private int eventThrottleTimer = 0;
+    private final int THROTTLE_LIMIT = 30;
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-
-        int eventThrottleTimer = 0;
-        int THROTTLE_LIMIT = 30;
-        float DRUM_THRESHOLD_1 = -20.0f;
-        float DRUM_THRESHOLD_2 = -5.0f;
-        float GUITAR_THRESHOLD_1 = 5.0f;
-        float GUITAR_THRESHOLD_2 = 5.0f;
-        float ANIMATION_SPEED = 0.05f;
-
-        if (android.os.Build.DEVICE.equals("dory")) {
-            eventThrottleTimer = 0;
-            THROTTLE_LIMIT = 30;
-            DRUM_THRESHOLD_1 = -20.0f;
-            DRUM_THRESHOLD_2 = -5.0f;
-            GUITAR_THRESHOLD_1 = 5.0f;
-            GUITAR_THRESHOLD_2 = 5.0f;
-            ANIMATION_SPEED = 0.05f;
-        }
-
         if (mFrameLayout != null) {
-            if (currentInstrument == Constants.INSTRUMENT_DRUM) {
-                if (event.values[1] <= DRUM_THRESHOLD_1 && eventThrottleTimer <= 0) {
+            if (mIsDrum) {
+                if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
                     eventThrottleTimer = THROTTLE_LIMIT;
@@ -199,17 +147,8 @@ public class MyActivity extends Activity implements SensorEventListener,
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else if (currentInstrument == Constants.INSTRUMENT_MARACA) {
-                if (event.values[1] <= DRUM_THRESHOLD_2 && eventThrottleTimer <= 0) {
-                    lum = 1.0f;
-                    sendPlaySoundMessage();
-                    eventThrottleTimer = THROTTLE_LIMIT;
-                }
-                eventThrottleTimer--;
-                lum -= 0.04f;
-                lum = Math.max(0.0f, lum);
-                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else if (currentInstrument == Constants.INSTRUMENT_GUITAR) {
+            } else {
+
                 while (sensorQueue.size() > 5)
                     sensorQueue.remove();
 
@@ -217,35 +156,33 @@ public class MyActivity extends Activity implements SensorEventListener,
 
                 boolean ok = true;
                 for (Float f : sensorQueue) {
-                    if (Math.abs(f) <= GUITAR_THRESHOLD_1)
+                    if (Math.abs(f) <= 5.0f)
                         count++;
                 }
 
                 sensorQueue.add(event.values[1]);
 
-                if (Math.abs(event.values[1]) <= GUITAR_THRESHOLD_2 && count <= 0 && eventThrottleTimer <= 0) {
+                if (Math.abs(event.values[1]) <= 5.0f && count <= 0 && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
                     eventThrottleTimer = THROTTLE_LIMIT;
                 }
                 eventThrottleTimer--;
-                lum -= ANIMATION_SPEED;
+                lum -= 0.8f;
                 lum = Math.max(0.0f, lum);
-                mFrameLayout.setBackgroundColor(Color.rgb(0,255,0));
+                mFrameLayout.setBackgroundColor(mColor);
             }
         }
     }
 
     private void sendPlaySoundMessage() {
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
-                    new ResultCallback<NodeApi.GetConnectedNodesResult>() {
-                        @Override
-                        public void onResult(NodeApi.GetConnectedNodesResult nodes) {
-                            Wearable.MessageApi.sendMessage(mGoogleApiClient, nodes.getNodes().get(0).getId(),
-                                    Constants.PATH_PLAY_SOUND, new byte[0]);
-                            mRetrievedPairedNode = true;
-                        }
-                    });
+        if (mRetrievedPairedNode) {
+            Wearable.MessageApi.sendMessage(mGoogleApiClient, mPairedNode.getId(),
+                    Constants.PATH_PLAY_SOUND, new byte[0]);
+            Log.i(TAG, "Sent message to phone.");
+        } else {
+            Log.w(TAG, "Failed to send play sound message because haven't found paired nodes");
+        }
     }
 
     @Override
