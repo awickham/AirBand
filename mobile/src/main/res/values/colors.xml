@@ -11,7 +11,7 @@
     <color name="red">#FF0000</color>
     <color name="red_transparent">#66FF0000</color>
     <color name="blue">#5C5CFF</color>
-    <color name="blue_transparent">#665C5CFF</color>
+    <color name="blue_transparent">#AA5C5CFF</color>
     <color name="start_blue">#BB0066FF</color>
     <color name="end_blue">#BB0000FF</color>
     <color name="green">#009900</color>

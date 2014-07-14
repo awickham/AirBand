@@ -9,7 +9,7 @@
         android:id="@+id/pulse"
         android:layout_width="350dp"
         android:layout_height="350dp"
-        android:background="@drawable/blue_circle"
+        android:background="@drawable/green_circle"
         android:visibility="invisible"
         android:layout_gravity="center" />
 
@@ -17,7 +17,7 @@
         android:id="@+id/green_background"
         android:layout_width="350dp"
         android:layout_height="350dp"
-        android:background="@drawable/green_circle"
+        android:background="@drawable/blue_circle"
         android:layout_gravity="center" />
 
     <ImageView

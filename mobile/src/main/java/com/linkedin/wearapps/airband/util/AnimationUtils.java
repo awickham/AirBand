@@ -16,6 +16,7 @@ public class AnimationUtils {
         alpha.setRepeatCount(Animation.INFINITE);
         alpha.setRepeatMode(Animation.REVERSE);
         alpha.setDuration(1200);
+        alpha.setFillAfter(true);
         return alpha;
     }
 
