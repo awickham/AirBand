@@ -38,7 +38,7 @@ public class HomeListenerService extends WearableListenerService {
         int currentBackground = data.getInt(Constants.CURRENT_BACKGROUND);
 
         Intent startActivity = new Intent(this, MyActivity.class)
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra(Constants.CURRENT_INSTRUMENT, currentInstrument)
                 .putExtra(Constants.CURRENT_BACKGROUND, currentBackground);
         startActivity(startActivity);

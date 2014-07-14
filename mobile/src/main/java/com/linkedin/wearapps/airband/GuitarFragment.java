@@ -35,6 +35,7 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
     private Set<Integer> mButtonsPressed;
     private List<Integer> mRawGuitarSoundIds;
     private List<Integer> mRawElectricGuitarSoundIds;
+    private static int mCurrentGuitarIndex = 0;
     private static final int NUM_NOTES = 8;
 
     // SoundPool stuff
@@ -175,20 +176,25 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
             // Should never be null, but guess the check doesn't hurt.
             mSoundPool.play(soundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
         }
-//        // Set data item to tell watch what color to use.
-//        PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_BACKGROUND);
-//        putDataMapRequest.getDataMap().putInt(Constants.CURRENT_BACKGROUND, rawGuitarSoundIndex);
-//        Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
-//                .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
-//                    @Override
-//                    public void onResult(DataApi.DataItemResult dataItemResult) {
-//                        if (!dataItemResult.getStatus().isSuccess()) {
-//                            Log.e(TAG, "Failed to set guitar data item.");
-//                        } else {
-//                            Log.i(TAG, "Setting guitar data item.");
-//                        }
-//                    }
-//                });
+
+        // If this is a different sound, set data item to tell watch what color to use.
+        if (mCurrentGuitarIndex != rawGuitarSoundIndex) {
+            PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(Constants.PATH_BACKGROUND);
+            putDataMapRequest.getDataMap().putInt(Constants.CURRENT_BACKGROUND, rawGuitarSoundIndex);
+            Wearable.DataApi.putDataItem(mGoogleApiClient, putDataMapRequest.asPutDataRequest())
+                    .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+                        @Override
+                        public void onResult(DataApi.DataItemResult dataItemResult) {
+                            if (!dataItemResult.getStatus().isSuccess()) {
+                                Log.e(TAG, "Failed to set guitar data item.");
+                            } else {
+                                Log.i(TAG, "Setting guitar data item.");
+                            }
+                        }
+                    });
+        }
+
+        mCurrentGuitarIndex = rawGuitarSoundIndex;
     }
 
     @Override

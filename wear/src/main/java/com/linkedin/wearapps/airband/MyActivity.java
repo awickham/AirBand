@@ -2,6 +2,7 @@ package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -24,6 +25,8 @@ import com.google.android.gms.wearable.Wearable;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MyActivity extends Activity implements SensorEventListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
@@ -40,13 +43,17 @@ public class MyActivity extends Activity implements SensorEventListener,
     private Queue<Float> sensorQueue;
     private float vel;
     private boolean strum = true;
-    private boolean mIsDrum = true;
-    private int mColor = Color.BLACK;
+    private byte currentInstrument;
+    private int mColor;
 
     private GoogleApiClient mGoogleApiClient;
     private boolean mResolvingError = false;
-    private Node mPairedNode;
+    private static Node mPairedNode;
     private boolean mRetrievedPairedNode = false;
+
+    // Used to send blank messages at the set interval.
+    private Timer mTimer;
+    private static final long INTERVAL_SEND_BLANK_MESSAGES_MS = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,41 +69,61 @@ public class MyActivity extends Activity implements SensorEventListener,
 
         sensorQueue = new ArrayDeque<Float>();
 
+        currentInstrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
+                Constants.INSTRUMENT_DRUM);
+        mColor = getColor(getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, 0));
+
         final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
                 mImageView = (ImageView) stub.findViewById(R.id.musical_note_view);
                 mFrameLayout = (FrameLayout) stub.findViewById(R.id.frame_layout);
-                mFrameLayout.setBackgroundColor(Color.BLACK);
+                mFrameLayout.setBackgroundColor(mColor);
             }
         });
-
-        byte instrument = getIntent().getByteExtra(Constants.CURRENT_INSTRUMENT,
-                Constants.INSTRUMENT_DRUM);
-        mIsDrum = instrument == Constants.INSTRUMENT_DRUM;
-        mColor = getIntent().getIntExtra(Constants.CURRENT_BACKGROUND, Color.BLACK);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+    }
 
-        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
-                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
-                    @Override
-                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
-                        mPairedNode = nodes.getNodes().get(0);
-                        mRetrievedPairedNode = true;
-                    }
-                });
+    private int getColor(int soundIndex) {
+        switch (soundIndex) {
+            case 0:
+                return Color.GRAY;
+            case 1:
+                return Color.RED;
+            case 2:
+                return Color.YELLOW;
+            case 3:
+                return Color.MAGENTA;
+            case 4:
+                return Color.GREEN;
+            case 5:
+                return Color.LTGRAY;
+            case 6:
+                return Color.CYAN;
+            case 7:
+                return Color.DKGRAY;
+            case 8:
+                return Color.BLUE;
+            default:
+                return Color.GRAY;
+        }
     }
 
     @Override
-    public void onDestroy() {
-        mGoogleApiClient.disconnect();
-        super.onDestroy();
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(TAG, "Got a new intent! Changing background...");
+        mColor = getColor(intent.getIntExtra(Constants.CURRENT_BACKGROUND, 0));
+        mFrameLayout.setBackgroundColor(mColor);
+        if (!sendingBlankMessages()) {
+            startSendingBlankMessages();
+        }
     }
 
     @Override
@@ -108,21 +135,51 @@ public class MyActivity extends Activity implements SensorEventListener,
     }
 
     @Override
+    public void onConnected(Bundle bundle) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Log.d(TAG, "Connected to Google Api Service");
+        }
+        mResolvingError = false;
+
+        Wearable.NodeApi.getConnectedNodes(mGoogleApiClient).setResultCallback(
+                new ResultCallback<NodeApi.GetConnectedNodesResult>() {
+                    @Override
+                    public void onResult(NodeApi.GetConnectedNodesResult nodes) {
+                        mPairedNode = nodes.getNodes().get(0);
+                        mRetrievedPairedNode = true;
+                    }
+                }
+        );
+        startSendingBlankMessages();
+    }
+
+    @Override
     protected void onStop() {
         mGoogleApiClient.disconnect();
+        mSensorManager.unregisterListener(this, mSensor);
+        stopSendingBlankMessages();
         super.onStop();
     }
 
     @Override
+    protected void onPause() {
+        mGoogleApiClient.disconnect();
+        mSensorManager.unregisterListener(this, mSensor);
+        stopSendingBlankMessages();
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
-        //
         super.onResume();
+        mGoogleApiClient.connect();
         if (mSensorManager.registerListener(this, mSensor,
                 SensorManager.SENSOR_DELAY_FASTEST)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Successfully registered for the sensor updates");
             }
         }
+        startSendingBlankMessages();
     }
 
     private float lum;
@@ -137,7 +194,7 @@ public class MyActivity extends Activity implements SensorEventListener,
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (mFrameLayout != null) {
-            if (mIsDrum) {
+            if (currentInstrument == Constants.INSTRUMENT_DRUM) {
                 if (event.values[1] <= -20.0f && eventThrottleTimer <= 0) {
                     lum = 1.0f;
                     sendPlaySoundMessage();
@@ -147,7 +204,17 @@ public class MyActivity extends Activity implements SensorEventListener,
                 lum -= 0.04f;
                 lum = Math.max(0.0f, lum);
                 mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
-            } else {
+            } else if (currentInstrument == Constants.INSTRUMENT_MARACA) {
+                if (event.values[1] <= -5.0f && eventThrottleTimer <= 0) {
+                    lum = 1.0f;
+                    sendPlaySoundMessage();
+                    eventThrottleTimer = THROTTLE_LIMIT / 2;
+                }
+                eventThrottleTimer--;
+                lum -= 0.04f;
+                lum = Math.max(0.0f, lum);
+                mFrameLayout.setBackgroundColor(Color.rgb((int) (lum * 255), (int) (lum * 255), (int) (lum * 255)));
+            } else if (currentInstrument == Constants.INSTRUMENT_GUITAR) {
 
                 while (sensorQueue.size() > 5)
                     sensorQueue.remove();
@@ -181,8 +248,33 @@ public class MyActivity extends Activity implements SensorEventListener,
                     Constants.PATH_PLAY_SOUND, new byte[0]);
             Log.i(TAG, "Sent message to phone.");
         } else {
-            Log.w(TAG, "Failed to send play sound message because haven't found paired nodes");
+            Log.w(TAG, "Failed to send play sound message because haven't found paired node");
         }
+    }
+
+    private void startSendingBlankMessages() {
+        mTimer = new Timer();
+        mTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (mRetrievedPairedNode && mGoogleApiClient.isConnected()) {
+                    Wearable.MessageApi.sendMessage(mGoogleApiClient, mPairedNode.getId(),
+                            "", new byte[0]);
+                    Log.i(TAG, "Sent blank message to phone.");
+                }
+            }
+        }, 0, INTERVAL_SEND_BLANK_MESSAGES_MS);
+    }
+
+    private void stopSendingBlankMessages() {
+        if (sendingBlankMessages()) {
+            mTimer.cancel();
+            mTimer = null;
+        }
+    }
+
+    private boolean sendingBlankMessages() {
+        return mTimer != null;
     }
 
     @Override
@@ -204,14 +296,6 @@ public class MyActivity extends Activity implements SensorEventListener,
         } else {
             mResolvingError = false;
         }
-    }
-
-    @Override
-    public void onConnected(Bundle bundle) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Log.d(TAG, "Connected to Google Api Service");
-        }
-        mResolvingError = false;
     }
 
     @Override
