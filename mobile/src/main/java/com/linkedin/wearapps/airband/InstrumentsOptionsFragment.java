@@ -1,7 +1,7 @@
 package com.linkedin.wearapps.airband;
 
 
-
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -12,9 +12,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import com.linkedin.wearapps.airband.util.AnimationUtils;
+import com.linkedin.wearapps.airband.util.LayoutMeasurementsUtils;
+
+import java.util.Random;
 
 
 /**
@@ -37,6 +44,8 @@ public class InstrumentsOptionsFragment extends Fragment {
     private static final int NUM_LOOPS = 1;
     private static final float RATE = 1f;
 
+    private static final int NUM_FLOATING_MUSIC_NOTES = 4;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -58,8 +67,9 @@ public class InstrumentsOptionsFragment extends Fragment {
         sMaracasSelectedId = mSoundPool.load(getActivity(), R.raw.instrument_selected_maracas,
                 PRIORITY);
 
-        LinearLayout instrumentOptions = (LinearLayout) inflater.inflate(
+        FrameLayout frame = (FrameLayout) inflater.inflate(
                 R.layout.fragment_instrument_options, container, false);
+        LinearLayout instrumentOptions = (LinearLayout) frame.findViewById(R.id.instrument_options);
         Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "Windswept MF.ttf");
         ((TextView) instrumentOptions.findViewById(R.id.choose_instrument)).setTypeface(tf);
 
@@ -70,7 +80,17 @@ public class InstrumentsOptionsFragment extends Fragment {
         addInstrumentOption(R.drawable.instrument_maracas, R.string.maracas, instrumentOptions,
                 R.color.blue_transparent, new OnMaracasClickedListener());
 
-        return instrumentOptions;
+        return frame;
+    }
+
+    @Override
+    public void onActivityCreated(Bundle bundle) {
+        super.onActivityCreated(bundle);
+        final Activity activity = getActivity();
+        for (int i = 0; i < NUM_FLOATING_MUSIC_NOTES; i++) {
+            addFloatingNotesAnimation((ViewGroup) activity.findViewById(R.id.frame),
+                    i * AnimationUtils.FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
+        }
     }
 
     private void addInstrumentOption(int iconRes, int nameRes, ViewGroup instrumentOptionsGroup,
@@ -130,5 +150,47 @@ public class InstrumentsOptionsFragment extends Fragment {
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+    }
+
+    private void addFloatingNotesAnimation(final ViewGroup frame, final long startOffset) {
+        final LayoutInflater inflater = getActivity().getLayoutInflater();
+        final ImageView musicNote = (ImageView) inflater.inflate(R.layout.image_music_note, null);
+
+        // Measurements used to determine placement of notes.
+        final Activity activity = getActivity();
+        final int screenWidth = LayoutMeasurementsUtils.getScreenWidth(activity);
+        final int screenHeight = LayoutMeasurementsUtils.getScreenHeight(activity);
+        final int titleHeight = LayoutMeasurementsUtils.getMeasuredHeightOfView(activity
+                .findViewById(R.id.title));
+        final int musicNoteWidth = LayoutMeasurementsUtils.getMeasuredWidthOfView(musicNote);
+        final int musicNoteHeight = LayoutMeasurementsUtils.getMeasuredHeightOfView(musicNote);
+
+        final Random rand = new Random();
+        int x = rand.nextInt(screenWidth - musicNoteWidth);
+        int startY = 0;
+        int endY = startY - rand.nextInt(screenHeight + titleHeight);
+        final ViewGroup floatingMusic = (ViewGroup) frame.findViewById(R.id.floating_music);
+        final Animation floatAndFade = AnimationUtils.floatAndFadeAnimation(x, startY, endY,
+                startOffset, Animation.INFINITE);
+        floatingMusic.addView(musicNote);
+        // Make music note start just below the screen.
+        musicNote.setY(musicNote.getY() + musicNoteHeight);
+        floatAndFade.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                floatingMusic.removeView(musicNote);
+                addFloatingNotesAnimation(frame,
+                        AnimationUtils.FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        musicNote.startAnimation(floatAndFade);
     }
 }

@@ -114,7 +114,7 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
 
         // Fading yellow circle behind drum set.
         drumSet.findViewById(R.id.yellow_background).startAnimation(AnimationUtils
-                .getFadeBackgroundAnimation());
+                .fadeBackgroundAnimation());
 
         return drumSet;
     }
@@ -179,10 +179,10 @@ public class DrumSetFragment extends Fragment implements MessageApi.MessageListe
         // Show the pulse animation.
         final View pulseBackground = getActivity().findViewById(R.id.pulse);
         pulseBackground.setVisibility(View.VISIBLE);
-        pulseBackground.startAnimation(AnimationUtils.getPulseBackgroundAnimation(pulseBackground));
+        pulseBackground.startAnimation(AnimationUtils.pulseBackgroundAnimation(pulseBackground));
 
         getActivity().findViewById(R.id.drum_set).startAnimation(AnimationUtils
-                .getShakeInstrumentAnimation());
+                .shakeInstrumentAnimation());
     }
 
     @Override

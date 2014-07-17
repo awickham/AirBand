@@ -1,17 +1,21 @@
 package com.linkedin.wearapps.airband.util;
 
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
 import android.view.animation.RotateAnimation;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.TranslateAnimation;
 
 /**
  * Get animations used throughout application.
  */
 public class AnimationUtils {
-    public static AlphaAnimation getFadeBackgroundAnimation() {
+    public static final long FLOAT_DURATION = 10000;
+
+    public static AlphaAnimation fadeBackgroundAnimation() {
         AlphaAnimation alpha = new AlphaAnimation(0.5f, 0.2f);
         alpha.setRepeatCount(Animation.INFINITE);
         alpha.setRepeatMode(Animation.REVERSE);
@@ -20,7 +24,23 @@ public class AnimationUtils {
         return alpha;
     }
 
-    public static AnimationSet getPulseBackgroundAnimation(final View pulseBackground) {
+    public static AnimationSet floatAndFadeAnimation(int x, int startY, int endY,
+                                                     long startOffset, int repeatMode) {
+        AnimationSet floatAndFade = new AnimationSet(false);
+        TranslateAnimation floatAnim = new TranslateAnimation(x, x, startY, endY);
+        floatAnim.setInterpolator(new AccelerateDecelerateInterpolator());
+        floatAnim.setFillAfter(true);
+        AlphaAnimation fadeAnim = new AlphaAnimation(1f, 0f);
+        fadeAnim.setFillAfter(true);
+        floatAndFade.addAnimation(floatAnim);
+        floatAndFade.addAnimation(fadeAnim);
+        floatAndFade.setDuration(FLOAT_DURATION);
+        floatAndFade.setStartOffset(startOffset);
+        floatAndFade.setRepeatCount(repeatMode);
+        return floatAndFade;
+    }
+
+    public static AnimationSet pulseBackgroundAnimation(final View pulseBackground) {
         AnimationSet pulse = new AnimationSet(false);
         ScaleAnimation scale = new ScaleAnimation(0.5f, 1.2f, 0.5f, 1.2f,
                 Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
@@ -47,7 +67,7 @@ public class AnimationUtils {
         return pulse;
     }
 
-    public static AnimationSet getShakeInstrumentAnimation() {
+    public static AnimationSet shakeInstrumentAnimation() {
         AnimationSet shake = new AnimationSet(false);
         RotateAnimation rotate1 = new RotateAnimation(0, 15, RotateAnimation.RELATIVE_TO_SELF,
                 0.5f, RotateAnimation.RELATIVE_TO_SELF, 0.5f);
