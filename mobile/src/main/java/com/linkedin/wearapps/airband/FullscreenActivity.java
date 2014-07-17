@@ -3,7 +3,9 @@ package com.linkedin.wearapps.airband;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.graphics.Typeface;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
@@ -42,6 +44,13 @@ public class FullscreenActivity extends Activity {
         title.setTypeface(mWindSweptTf);
         title.startAnimation(alpha);
         findViewById(R.id.wind_underline).startAnimation(alpha);
+
+        // turn up the volume to max
+        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        am.setStreamVolume(
+                AudioManager.STREAM_MUSIC,
+                am.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
+                0);
 
         final LinearLayout anchorView = (LinearLayout) findViewById(R.id.anchor);
         SystemUiHider.getInstance(this, anchorView, 0).hide();
