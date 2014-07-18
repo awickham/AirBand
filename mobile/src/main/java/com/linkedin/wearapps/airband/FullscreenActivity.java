@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.LinearLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.linkedin.wearapps.airband.util.SystemUiHider;
@@ -45,12 +46,8 @@ public class FullscreenActivity extends Activity {
         title.startAnimation(alpha);
         findViewById(R.id.wind_underline).startAnimation(alpha);
 
-        // turn up the volume to max
-        AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        am.setStreamVolume(
-                AudioManager.STREAM_MUSIC,
-                am.getStreamMaxVolume(AudioManager.STREAM_MUSIC),
-                0);
+        // Set up music volume slider control.
+        setUpMusicVolumeSeekBar();
 
         final LinearLayout anchorView = (LinearLayout) findViewById(R.id.anchor);
         SystemUiHider.getInstance(this, anchorView, 0).hide();
@@ -60,6 +57,27 @@ public class FullscreenActivity extends Activity {
         InstrumentsOptionsFragment fragment = new InstrumentsOptionsFragment();
         fragmentTransaction.add(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+    }
+
+    private void setUpMusicVolumeSeekBar() {
+        final AudioManager am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        final SeekBar musicVolume = (SeekBar) findViewById(R.id.music_volume);
+        musicVolume.setMax(am.getStreamMaxVolume(AudioManager.STREAM_MUSIC));
+        musicVolume.setProgress(am.getStreamVolume(AudioManager.STREAM_MUSIC));
+        musicVolume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                am.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     @Override

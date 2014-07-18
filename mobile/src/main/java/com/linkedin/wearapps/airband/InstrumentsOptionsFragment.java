@@ -168,7 +168,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         final Random rand = new Random();
         int x = rand.nextInt(screenWidth - musicNoteWidth);
         int startY = 0;
-        int endY = startY - rand.nextInt(screenHeight + titleHeight);
+        int endY = startY - rand.nextInt(screenHeight - titleHeight);
         final ViewGroup floatingMusic = (ViewGroup) frame.findViewById(R.id.floating_music);
         final Animation floatAndFade = AnimationUtils.floatAndFadeAnimation(x, startY, endY,
                 startOffset, Animation.INFINITE);

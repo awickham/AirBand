@@ -1,35 +1,56 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/anchor"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/light_orange"
-    android:orientation="vertical"
-    tools:context=".FullscreenActivity">
-
-    <TextView android:id="@+id/title"
+    android:layout_height="match_parent" >
+    <LinearLayout
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/anchor"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:keepScreenOn="true"
-        android:textColor="@color/wind_blue_transparent"
-        android:textSize="84sp"
-        android:gravity="center_horizontal"
-        android:paddingTop="20dp"
-        android:text="@string/app_name" />
-    <ImageView
-        android:id="@+id/wind_underline"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:src="@drawable/wind_underline"
-        android:scaleType="fitXY"
-        android:alpha="0.6"
-        android:layout_marginTop="-10dp"/>
+        android:layout_height="match_parent"
+        android:background="@color/light_orange"
+        android:orientation="vertical"
+        tools:context=".FullscreenActivity">
+
+        <TextView android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:keepScreenOn="true"
+            android:textColor="@color/wind_blue_transparent"
+            android:textSize="84sp"
+            android:gravity="center_horizontal"
+            android:paddingTop="20dp"
+            android:text="@string/app_name" />
+        <ImageView
+            android:id="@+id/wind_underline"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/wind_underline"
+            android:scaleType="fitXY"
+            android:alpha="0.6"
+            android:layout_marginTop="-10dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/fragment_container"
+            android:orientation="vertical"
+            android:gravity="center" >
+        </LinearLayout>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/fragment_container"
-        android:orientation="vertical"
-        android:gravity="center" />
+        android:layout_height="wrap_content"
+        android:paddingBottom="3dp"
+        android:layout_alignParentBottom="true" >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/music_speaker"/>
+        <SeekBar
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/music_volume"/>
+    </LinearLayout>
+</RelativeLayout>
 
-</LinearLayout>
