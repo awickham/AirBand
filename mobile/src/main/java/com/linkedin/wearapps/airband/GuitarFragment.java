@@ -151,12 +151,10 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                     if (MotionEvent.ACTION_DOWN == event.getAction()) {
                         v.setAlpha(1.0f);
                         mButtonsPressed.add(j);
-                        playSound();
                         return true;
                     } else if (MotionEvent.ACTION_UP == event.getAction()) {
                         v.setAlpha(0.6f);
                         mButtonsPressed.remove(j);
-                        playSound();
                         return true;
                     }
                     return false;
