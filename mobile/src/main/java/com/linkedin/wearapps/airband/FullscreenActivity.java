@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
-import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.Window;
@@ -16,6 +15,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.linkedin.wearapps.airband.util.SystemUiHider;
+import com.linkedin.wearapps.airband.util.TypefaceUtils;
 
 
 /**
@@ -23,8 +23,6 @@ import com.linkedin.wearapps.airband.util.SystemUiHider;
  * show the status bar. This page displays instrument options for the user to choose from.
  */
 public class FullscreenActivity extends Activity {
-
-    private Typeface mWindSweptTf;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +34,13 @@ public class FullscreenActivity extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_fullscreen);
 
-        mWindSweptTf = Typeface.createFromAsset(getAssets(), "Windswept MF.ttf");
+        TypefaceUtils.setWindsweptTypeface(this);
         AlphaAnimation alpha = new AlphaAnimation(1.0f, 0.4f);
         alpha.setRepeatCount(Animation.INFINITE);
         alpha.setRepeatMode(Animation.REVERSE);
         alpha.setDuration(1200);
         final TextView title = (TextView) findViewById(R.id.title);
-        title.setTypeface(mWindSweptTf);
+        title.setTypeface(TypefaceUtils.getWindsweptTypeface());
         title.startAnimation(alpha);
         findViewById(R.id.wind_underline).startAnimation(alpha);
 

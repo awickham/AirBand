@@ -2,7 +2,6 @@ package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
@@ -26,6 +25,7 @@ import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
 import com.linkedin.wearapps.airband.util.AnimationUtils;
+import com.linkedin.wearapps.airband.util.TypefaceUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -214,7 +214,7 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
         final TextView noteName = (TextView) getActivity().getLayoutInflater()
                 .inflate(R.layout.text_note_name, null);
         noteName.setText(noteNameText);
-        noteName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "Windswept MF.ttf"));
+        noteName.setTypeface(TypefaceUtils.getWindsweptTypeface());
         floatingNoteName.addView(noteName);
         // Coordinates relative to center, because that's where floatingNoteName is.
         Animation floatingNoteNameAnim = AnimationUtils.floatAndFadeAnimation(0, 100, -600, 0, 0,

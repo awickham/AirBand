@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.linkedin.wearapps.airband.util.AnimationUtils;
 import com.linkedin.wearapps.airband.util.LayoutMeasurementsUtils;
+import com.linkedin.wearapps.airband.util.TypefaceUtils;
 
 import java.util.Random;
 
@@ -70,7 +71,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         FrameLayout frame = (FrameLayout) inflater.inflate(
                 R.layout.fragment_instrument_options, container, false);
         LinearLayout instrumentOptions = (LinearLayout) frame.findViewById(R.id.instrument_options);
-        Typeface tf = Typeface.createFromAsset(getActivity().getAssets(), "Windswept MF.ttf");
+        final Typeface tf = TypefaceUtils.getWindsweptTypeface();
         ((TextView) instrumentOptions.findViewById(R.id.choose_instrument)).setTypeface(tf);
 
         addInstrumentOption(R.drawable.instrument_drum_set, R.string.drum_set, instrumentOptions,
@@ -100,9 +101,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         ((ImageView) option.findViewById(R.id.instrument_icon)).setImageResource(iconRes);
         final TextView instrumentName = (TextView) option.findViewById(R.id.instrument_name);
         instrumentName.setText(nameRes);
-        Typeface windSweptTf = Typeface.createFromAsset(getActivity().getAssets(),
-                "Windswept MF.ttf");
-        instrumentName.setTypeface(windSweptTf);
+        instrumentName.setTypeface(TypefaceUtils.getWindsweptTypeface());
         option.setBackgroundColor(getResources().getColor(colorRes));
         option.setOnClickListener(onClickListener);
         instrumentOptionsGroup.addView(option);
