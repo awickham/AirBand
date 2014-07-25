@@ -13,7 +13,8 @@ import android.view.animation.TranslateAnimation;
  * Get animations used throughout application.
  */
 public class AnimationUtils {
-    public static final long FLOAT_DURATION = 10000;
+    public static final long LONG_FLOAT_DURATION = 10000;
+    public static final long SHORT_FLOAT_DURATION = 1000;
 
     public static AlphaAnimation fadeBackgroundAnimation() {
         AlphaAnimation alpha = new AlphaAnimation(0.5f, 0.2f);
@@ -24,8 +25,8 @@ public class AnimationUtils {
         return alpha;
     }
 
-    public static AnimationSet floatAndFadeAnimation(int x, int startY, int endY,
-                                                     long startOffset, int repeatMode) {
+    public static AnimationSet floatAndFadeAnimation(int x, int startY, int endY, int repeatCount,
+                                                     long startOffset, long floatDuration) {
         AnimationSet floatAndFade = new AnimationSet(false);
         TranslateAnimation floatAnim = new TranslateAnimation(x, x, startY, endY);
         floatAnim.setInterpolator(new AccelerateDecelerateInterpolator());
@@ -34,9 +35,9 @@ public class AnimationUtils {
         fadeAnim.setFillAfter(true);
         floatAndFade.addAnimation(floatAnim);
         floatAndFade.addAnimation(fadeAnim);
-        floatAndFade.setDuration(FLOAT_DURATION);
+        floatAndFade.setDuration(floatDuration);
         floatAndFade.setStartOffset(startOffset);
-        floatAndFade.setRepeatCount(repeatMode);
+        floatAndFade.setRepeatCount(repeatCount);
         return floatAndFade;
     }
 

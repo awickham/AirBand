@@ -2,9 +2,11 @@ package com.linkedin.wearapps.airband;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.graphics.Typeface;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -13,6 +15,7 @@ import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -22,6 +25,7 @@ import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.Wearable;
+import com.linkedin.wearapps.airband.util.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,6 +50,8 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
     private static final int PRIORITY = 1;
     private static final int NUM_LOOPS = 1;
     private static final float RATE = 1f;
+
+    private static final String[] NOTE_NAMES = {"G", "A", "B", "C", "D", "E", "F"};
 
     private GoogleApiClient mGoogleApiClient;
 
@@ -145,10 +151,12 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
                     if (MotionEvent.ACTION_DOWN == event.getAction()) {
                         v.setAlpha(1.0f);
                         mButtonsPressed.add(j);
+                        playSound();
                         return true;
                     } else if (MotionEvent.ACTION_UP == event.getAction()) {
                         v.setAlpha(0.6f);
                         mButtonsPressed.remove(j);
+                        playSound();
                         return true;
                     }
                     return false;
@@ -169,12 +177,15 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
         if (rawGuitarSoundIndex < NUM_NOTES) {
             soundId = mRawGuitarSoundIds.get(rawGuitarSoundIndex);
         } else {
-            // Electric guitar enabled - RELEASE THE BEAST!
-            soundId = mRawElectricGuitarSoundIds.get(rawGuitarSoundIndex - NUM_NOTES);
+            // Electric guitar enabled - RELEASE THE BEAST! (-= to ensure right note name floats up)
+            soundId = mRawElectricGuitarSoundIds.get(rawGuitarSoundIndex -= NUM_NOTES);
         }
         if (soundId != null) {
             // Should never be null, but guess the check doesn't hurt.
             mSoundPool.play(soundId, VOLUME, VOLUME, PRIORITY, NUM_LOOPS, RATE);
+            // Show what note was played.
+            addFloatingNoteName((ViewGroup) getActivity().findViewById(R.id.frame),
+                    NOTE_NAMES[rawGuitarSoundIndex % NOTE_NAMES.length]);
         }
 
         // If this is a different sound, set data item to tell watch what color to use.
@@ -195,6 +206,38 @@ public class GuitarFragment extends Fragment implements MessageApi.MessageListen
         }
 
         mCurrentGuitarIndex = rawGuitarSoundIndex;
+    }
+
+    private void addFloatingNoteName(final ViewGroup frame, String noteNameText) {
+        final ViewGroup floatingNoteName = (ViewGroup)
+                frame.findViewById(R.id.floating_note_name);
+        final TextView noteName = (TextView) getActivity().getLayoutInflater()
+                .inflate(R.layout.text_note_name, null);
+        noteName.setText(noteNameText);
+        noteName.setTypeface(Typeface.createFromAsset(getActivity().getAssets(), "Windswept MF.ttf"));
+        floatingNoteName.addView(noteName);
+        // Coordinates relative to center, because that's where floatingNoteName is.
+        Animation floatingNoteNameAnim = AnimationUtils.floatAndFadeAnimation(0, 100, -600, 0, 0,
+                AnimationUtils.SHORT_FLOAT_DURATION);
+        floatingNoteNameAnim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                new Handler().post(new Runnable() {
+                    public void run() {
+                        floatingNoteName.removeView(noteName);
+                    }
+                });
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+        noteName.startAnimation(floatingNoteNameAnim);
     }
 
     @Override

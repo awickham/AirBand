@@ -89,7 +89,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         final Activity activity = getActivity();
         for (int i = 0; i < NUM_FLOATING_MUSIC_NOTES; i++) {
             addFloatingNotesAnimation((ViewGroup) activity.findViewById(R.id.frame),
-                    i * AnimationUtils.FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
+                    i * AnimationUtils.LONG_FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
         }
     }
 
@@ -171,7 +171,7 @@ public class InstrumentsOptionsFragment extends Fragment {
         int endY = startY - rand.nextInt(screenHeight - titleHeight);
         final ViewGroup floatingMusic = (ViewGroup) frame.findViewById(R.id.floating_music);
         final Animation floatAndFade = AnimationUtils.floatAndFadeAnimation(x, startY, endY,
-                startOffset, Animation.INFINITE);
+                Animation.INFINITE, startOffset, AnimationUtils.LONG_FLOAT_DURATION);
         floatingMusic.addView(musicNote);
         // Make music note start just below the screen.
         musicNote.setY(musicNote.getY() + musicNoteHeight);
@@ -184,7 +184,7 @@ public class InstrumentsOptionsFragment extends Fragment {
             public void onAnimationEnd(Animation animation) {
                 floatingMusic.removeView(musicNote);
                 addFloatingNotesAnimation(frame,
-                        AnimationUtils.FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
+                        AnimationUtils.LONG_FLOAT_DURATION / NUM_FLOATING_MUSIC_NOTES);
             }
 
             @Override
